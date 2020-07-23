@@ -1,51 +1,50 @@
-from os import path, makedirs
+from os import path, makedirs, remove
 import pandas as pd
 from datautils.hdf5_storage import HDF5Storage
 from datetime import datetime
 
-CACHE_DIRECTORY = '.cache'
-CACHE_KEY = 'cache'
-META_KEY = 'meta'
-MOD_TIME_COLUMN = 'mod_time'
-
-
-def cache_exists(currency_pair: str) -> bool:
-    return path.exists(get_abs_cache_path(currency_pair))
-
-
-def get_abs_cache_path(currency_pair: str):
-    dir_name = path.dirname(__file__)
-    cache_dir = path.join(dir_name, '../{}'.format(CACHE_DIRECTORY))
-    cache_path = '{}/{}.h5'.format(cache_dir, currency_pair)
-    return path.abspath(cache_path)
-
-
-def cache_valid(currency_pair: str, mod_time: datetime) -> bool:
-    if not cache_exists(currency_pair):
-        return False
+class Cache:
     
-    cache_path = get_abs_cache_path(currency_pair)
-    storage = HDF5Storage()
-    meta_df = storage.load(cache_path, META_KEY)
-    return mod_time <= pd.to_datetime(meta_df[MOD_TIME_COLUMN].dt.to_pydatetime())
+    CACHE_DIRECTORY = '.cache'
+    META_KEY = 'meta'
+    MOD_TIME_COLUMN = 'mod_time'
+
+    def __init__(self, currency_pair: str):
+        self.currency_pair = currency_pair
+        self.cache_path = self.get_abs_cache_path(currency_pair)
+        self.storage = HDF5Storage()
+
+
+    def get_abs_cache_path(self, currency_pair: str):
+        dir_name = path.dirname(__file__)
+        cache_dir = path.join(dir_name, '../{}'.format(self.CACHE_DIRECTORY))
+        cache_path = '{}/{}.h5'.format(cache_dir, currency_pair)
+        return path.abspath(cache_path)
+
+
+    def cache_exists(self) -> bool:
+        return path.exists(self.cache_path)
+        
     
+    def put(self, df: pd.DataFrame, key: str) -> None:
+        if not self.cache_exists():
+            makedirs(path.dirname(self.cache_path), exist_ok=True)
+        self.storage.store(self.cache_path, df, key)
 
-def create_cache(currency_pair: str, df: pd.DataFrame, mod_time: datetime = None) -> None:
-    cache_path = get_abs_cache_path(currency_pair)
-    makedirs(path.dirname(cache_path), exist_ok=True)
-    storage = HDF5Storage()
-    storage.store(cache_path, df, CACHE_KEY)
-
-    if mod_time is not None:
-        meta_df = create_meta_df(mod_time)
-        storage.store(cache_path, meta_df, META_KEY)
-
-
-def create_meta_df(mod_time: datetime) -> pd.DataFrame:
-    return pd.DataFrame({MOD_TIME_COLUMN: mod_time}, index=[0])
+    
+    def fetch(self, key: str) -> pd.DataFrame:
+        if not self.cache_exists():
+            raise FileNotFoundError('No cache found for [{}]'.format(self.currency_pair))
+        elif not self.contains(key):
+            raise KeyError('No key [{}] found in cache [{}]'.format(key, self.currency_pair))
+        return self.storage.load(self.cache_path, key)
 
 
-def load_cache(currency_pair: str) -> pd.DataFrame:
-    cache_path = get_abs_cache_path(currency_pair)
-    storage = HDF5Storage()
-    return storage.load(cache_path, CACHE_KEY)
+    def contains(self, key: str) -> bool:
+        return self.storage.contains(self.cache_path, key)
+
+    
+    def delete(self):
+        if not self.cache_exists():
+            raise FileNotFoundError('No cache found for [{}]'.format(self.currency_pair))
+        return remove(self.cache_path)

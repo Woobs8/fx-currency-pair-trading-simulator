@@ -44,6 +44,7 @@ def load_data_source(fp: str) -> pd.DataFrame:
     reader = HistDataReader(fp)
     return reader.load_dataframe()
 
+
 def get_latest_source_modification(currency_pair: str, years: list = None) -> datetime:
     data_sources = get_data_sources(currency_pair, years)
     modification_times = map(get_modification_time, data_sources)
