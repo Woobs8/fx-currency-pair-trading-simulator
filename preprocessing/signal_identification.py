@@ -1,4 +1,4 @@
-from datautils.data_columns import PreprocessingColumns
+from shared.columns import PreprocessingColumns
 import pandas as pd
 import numpy as np
 

@@ -2,8 +2,8 @@ import pandas as pd
 from zipfile import ZipFile
 import os
 from time import timezone
-from datautils.csv_reader import CsvReader
-from datautils.data_columns import SourceDataColumns
+from data_loading.csv_reader import CsvReader
+from shared.columns import SourceDataColumns
 
 
 class HistDataReader:

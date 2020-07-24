@@ -1,7 +1,7 @@
 import pandas as pd
 from math import floor
 from datetime import datetime
-from datautils.data_columns import SourceDataColumns
+from shared.columns import SourceDataColumns
 
 def print_data_summary(data: pd.DataFrame) -> None:
     entries, tick_rate, start, stop = summarize_data(data)

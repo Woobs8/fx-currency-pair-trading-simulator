@@ -1,10 +1,10 @@
-from datautils.cache import Cache
+from caching.cache import Cache
 import pandas as pd
 from preprocessing.moving_average import ema, sma
 from preprocessing.signal_identification import find_signals
-from datautils.source_loading import get_latest_source_modification, load_data_sources
-from datautils.data_summary import print_data_summary
-from datautils.data_columns import SourceDataColumns, PreprocessingColumns, MetadataColumns
+from data_loading.source_loading import get_latest_source_modification, load_data_sources
+from data_loading.summary import print_data_summary
+from shared.columns import SourceDataColumns, PreprocessingColumns, MetadataColumns
 
 
 class Preprocessor:

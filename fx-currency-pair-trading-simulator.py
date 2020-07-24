@@ -1,7 +1,6 @@
 import argparse
 import pandas as pd
 from preprocessing.preprocessor import Preprocessor
-from datautils.data_columns import PreprocessingColumns
 
 
 def preprocessing(currency_pair: str, avg_func: str, short_window: int, long_window: int, price: str, hyst: int, no_cache: bool) -> pd.DataFrame:
