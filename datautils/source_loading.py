@@ -2,15 +2,18 @@ import os
 import pandas as pd
 from datautils.hist_data_reader import HistDataReader
 from datautils.fileutils import get_modification_time
+from datautils.data_columns import SourceDataColumns
 from datetime import datetime
 
+
 DATA_DIRECTORY = 'data'
+
 
 def load_data_sources(currency_pair: str, years: list = None) -> pd.DataFrame:
     data_sources = get_data_sources(currency_pair, years)
     loaded_sources = list(map(load_data_source, data_sources))
     df = pd.concat(loaded_sources, axis=0)
-    return df.sort_values(by=['date'])
+    return df.sort_values(by=[SourceDataColumns.TIME]).reset_index(drop=True)
 
 
 def get_data_sources(currency_pair: str, years: list = None) -> list:

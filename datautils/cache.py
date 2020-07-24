@@ -3,12 +3,12 @@ import pandas as pd
 from datautils.hdf5_storage import HDF5Storage
 from datetime import datetime
 
+
+CACHE_DIRECTORY = '.cache'
+
+
 class Cache:
     
-    CACHE_DIRECTORY = '.cache'
-    META_KEY = 'meta'
-    MOD_TIME_COLUMN = 'mod_time'
-
     def __init__(self, currency_pair: str):
         self.currency_pair = currency_pair
         self.cache_path = self.get_abs_cache_path(currency_pair)
@@ -17,7 +17,7 @@ class Cache:
 
     def get_abs_cache_path(self, currency_pair: str):
         dir_name = path.dirname(__file__)
-        cache_dir = path.join(dir_name, '../{}'.format(self.CACHE_DIRECTORY))
+        cache_dir = path.join(dir_name, '../{}'.format(CACHE_DIRECTORY))
         cache_path = '{}/{}.h5'.format(cache_dir, currency_pair)
         return path.abspath(cache_path)
 
@@ -32,7 +32,7 @@ class Cache:
         self.storage.store(self.cache_path, df, key)
 
     
-    def fetch(self, key: str) -> pd.DataFrame:
+    def fetch(self, key: str, columns: list = None) -> pd.DataFrame:
         if not self.cache_exists():
             raise FileNotFoundError('No cache found for [{}]'.format(self.currency_pair))
         elif not self.contains(key):
@@ -40,8 +40,8 @@ class Cache:
         return self.storage.load(self.cache_path, key)
 
 
-    def contains(self, key: str) -> bool:
-        return self.storage.contains(self.cache_path, key)
+    def contains(self, key: str, column: str = None) -> bool:
+        return self.storage.contains(self.cache_path, key, column)
 
     
     def delete(self):

@@ -3,6 +3,8 @@ from zipfile import ZipFile
 import os
 from time import timezone
 from datautils.csv_reader import CsvReader
+from datautils.data_columns import SourceDataColumns
+
 
 class HistDataReader:
     def __init__(self, fp: str):            
@@ -10,7 +12,11 @@ class HistDataReader:
         self.sep = ';'
         self.header = None
         self.columns = [0, 1, 2, 3, 4]
-        self.column_names = ['date', 'open', 'high', 'low', 'close']
+        self.column_names = [SourceDataColumns.TIME, 
+                            SourceDataColumns.PRICE_OPEN, 
+                            SourceDataColumns.PRICE_HIGH, 
+                            SourceDataColumns.PRICE_LOW, 
+                            SourceDataColumns.PRICE_CLOSE]
         self.date_column = 0
         self.data_tz = 'US/Eastern'
         self.local_tz = -timezone # tz is returned as seconds west of UTC (meaning the sign is reversed compared to usual notation)

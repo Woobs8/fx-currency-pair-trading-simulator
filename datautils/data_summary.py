@@ -1,6 +1,7 @@
 import pandas as pd
 from math import floor
 from datetime import datetime
+from datautils.data_columns import SourceDataColumns
 
 def print_data_summary(data: pd.DataFrame) -> None:
     entries, tick_rate, start, stop = summarize_data(data)
@@ -20,13 +21,13 @@ def summarize_data(data: pd.DataFrame) -> (int, int, datetime, datetime):
     
 
 def calc_tick_rate(data: pd.DataFrame) -> int:
-    delta = data['date'].diff().astype('timedelta64[m]').mean()
+    delta = data[SourceDataColumns.TIME].diff().astype('timedelta64[m]').mean()
     return floor(delta)
 
 
 def get_start_time(data: pd.DataFrame) -> datetime:
-    return data.sort_values(by=['date']).iloc[0]['date'].to_pydatetime()
+    return data.sort_values(by=[SourceDataColumns.TIME]).iloc[0][SourceDataColumns.TIME].to_pydatetime()
 
 
 def get_stop_time(data: pd.DataFrame) -> datetime:
-    return data.sort_values(by=['date']).iloc[-1]['date'].to_pydatetime()
+    return data.sort_values(by=[SourceDataColumns.TIME]).iloc[-1][SourceDataColumns.TIME].to_pydatetime()
