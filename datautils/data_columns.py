@@ -11,6 +11,8 @@ class PreprocessingColumns:
     MOVING_AVERAGE = 'ma'
     SHORT_AVG = 'short'
     LONG_AVG = 'long'
+    BUY = 'buy'
+    SELL = 'sell'
 
 
 class MetadataColumns:
