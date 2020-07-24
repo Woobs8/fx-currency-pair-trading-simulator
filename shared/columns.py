@@ -13,6 +13,8 @@ class PreprocessingColumns:
     LONG_AVG = 'long'
     BUY = 'buy'
     SELL = 'sell'
+    STOP_PROFIT = 'stop_profit'
+    STOP_LOSS = 'stop_loss'
 
 
 class MetadataColumns:

@@ -2,6 +2,7 @@ from caching.cache import Cache
 import pandas as pd
 from preprocessing.moving_average import ema, sma
 from preprocessing.signal_identification import find_signals
+from preprocessing.stopping_strategy.stopping_strategy import StoppingStrategy
 from data_loading.source_loading import get_latest_source_modification, load_data_sources
 from data_loading.summary import print_data_summary
 from shared.columns import SourceDataColumns, PreprocessingColumns, MetadataColumns
@@ -63,15 +64,17 @@ class Preprocessor:
         self.cache.put(source_mod_time_df, self.META_CACHE_KEY)
             
 
-    def get_signals(self, avg_func: str, short_window: int, long_window: int, price: str, hysteresis: int) -> pd.DataFrame:
+    def get_signals(self, avg_func: str, short_window: int, long_window: int, price: str, hysteresis: int, stop_strat: StoppingStrategy) -> pd.DataFrame:
         cache_key = '{}_{}_{}_{}_{}'.format(avg_func, short_window, long_window, price, hysteresis)
         if not self.no_cache:
             cached_signals = self.fetch_from_preprocessing_cache(cache_key)
 
         if self.no_cache or cached_signals.empty:
-            print('Finding signals for [fnc={}, sw={}, lw={}, price={}, hyst={}]'.format(avg_func, short_window, long_window, price, hysteresis))
+            print('Finding signals for [fnc={}, sw={}, lw={}, price={}, hyst={}, stop_strat={}]'.format(avg_func, short_window, long_window, price, hysteresis, stop_strat))
             ma = self.get_moving_averages(avg_func, short_window, long_window, price)
             signals = find_signals(ma, hysteresis)
+            stopping_criterias = stop_strat.find_stopping_criteria(signals, self.data, price)
+            signals = pd.merge(signals, stopping_criterias, how='inner', on=PreprocessingColumns.TIME)
             if not self.no_cache:
                 print('Caching result for [{}].'.format(cache_key))
                 self.cache.put(signals, cache_key)
