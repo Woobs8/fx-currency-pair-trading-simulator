@@ -5,6 +5,8 @@ from datetime import datetime
 
 
 CACHE_DIRECTORY = '.cache'
+META_KEY = 'meta'
+LATEST_MOD_COL = 'latest_mod'
 
 
 class Cache:
@@ -48,3 +50,13 @@ class Cache:
         if not self.cache_exists():
             raise FileNotFoundError('No cache found for [{}]'.format(self.currency_pair))
         return remove(self.cache_path)
+
+    
+    def set_data_mod_time(self, mod_time: datetime) -> None:
+        mod_time_df = pd.DataFrame({LATEST_MOD_COL: mod_time}, index=[0])
+        self.put(mod_time_df, META_KEY)
+
+    
+    def get_data_mod_time(self) -> datetime:
+        mod_time_df = self.fetch(META_KEY)
+        return pd.to_datetime(mod_time_df[LATEST_MOD_COL].dt.to_pydatetime())

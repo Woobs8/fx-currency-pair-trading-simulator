@@ -15,7 +15,3 @@ class PreprocessingColumns:
     SELL = 'sell'
     STOP_PROFIT = 'stop_profit'
     STOP_LOSS = 'stop_loss'
-
-
-class MetadataColumns:
-    LATEST_MODIFICATION = 'latest_mod'
