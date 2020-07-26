@@ -6,18 +6,24 @@ from datetime import datetime
 
 class SignalResolver:
 
-    def __init__(self, data_series: pd.DataFrame):
+    def __init__(self, data_series: pd.DataFrame, ignore_reverse: bool = False):
         self.data_series = data_series
+        self.ignore_reverse = ignore_reverse
         self.columns = [ressigcol.OPEN, ressigcol.OPEN_QUOTE, ressigcol.TYPE, ressigcol.STOP_PROFIT, ressigcol.STOP_LOSS, ressigcol.CLOSE, ressigcol.NET_GAIN, ressigcol.CAUSE]
-    
+
 
     def resolve_signals(self, signals: pd.DataFrame) -> pd.DataFrame:
         resolved_positions = []
         for i, signal in enumerate(signals.itertuples()):
-            next_index = i + 1
-            if next_index < signals.shape[0]:
-                signal_reverse_time = signals.iloc[next_index,:].name
-                resolved_positions.append(self.resolve_position(signal, signal_reverse_time))
+            if i < (signals.shape[0] - 1):
+                if self.ignore_reverse:
+                    next_index = signals.shape[0] - 1
+                else:
+                    next_index = i + 1
+            else:
+                break
+            signal_reverse_time = signals.iloc[next_index,:].name
+            resolved_positions.append(self.resolve_position(signal, signal_reverse_time))
         return pd.DataFrame(resolved_positions)
 
     

@@ -6,10 +6,11 @@ from shared.columns import ResolvedSignalColumns
 
 class SignalAnalyzer:
 
-    def __init__(self, data_series: pd.DataFrame, signals: pd.DataFrame):
+    def __init__(self, data_series: pd.DataFrame, signals: pd.DataFrame, ignore_reverse: bool = False):
         self.data_series = data_series
         self.signals = signals
-        self.resolver = SignalResolver(self.data_series)
+        self.ignore_reverse = ignore_reverse
+        self.resolver = SignalResolver(self.data_series, ignore_reverse)
         self.resolved_signals = self.resolver.resolve_signals(self.signals)
 
 

@@ -45,8 +45,8 @@ def preprocessing(currency_pair: str, data: pd.DataFrame, signal_strat: str, ma_
         return preprocessor.get_signals(data)
 
 
-def analyze(data: pd.DataFrame, signals: pd.DataFrame, year: int = None):
-    analyzer = SignalAnalyzer(data, signals)
+def analyze(data: pd.DataFrame, signals: pd.DataFrame, ignore_reverse: bool, year: int = None):
+    analyzer = SignalAnalyzer(data, signals, ignore_reverse)
     resolved_signals = analyzer.get_resolved_signals(year)
     stats = analyzer.get_buy_stats(year)
     return resolved_signals, stats
@@ -66,11 +66,12 @@ if __name__ == '__main__':
     parser.add_argument('--profit', type=int, help='delta pips for setting stop profit')
     parser.add_argument('--loss', type=int, help='delta pips for setting stop loss')
     parser.add_argument('--lookback', '--lb', type=int, help='duration (in minutes) to lookback when using fibonacci method for stopping criteria')
+    parser.add_argument('--ignore_reverse', '--ir', action='store_true', help='do not close positions when a reversed signal is encountered')
     parser.add_argument('--no-cache', '--nc', action='store_true', help='ignore caches and load data from source')
 
     args = parser.parse_args()
     data = data_loading(args.currency_pair, args.no_cache)
     signals = preprocessing(args.currency_pair, data, args.signal, args.mafnc, args.short, args.long, args.quote, args.hyst, args.stop, args.profit, args.loss, args.lookback, args.no_cache)
     print(signals)
-    resolved_signals, stats = analyze(data, signals)
+    resolved_signals, stats = analyze(data, signals, args.ignore_reverse)
     print(stats)
