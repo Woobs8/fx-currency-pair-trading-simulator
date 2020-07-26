@@ -1,7 +1,7 @@
 from preprocessing.signal_strategy.signal_strategy import SignalStrategy
 from preprocessing.moving_average.moving_average import MovingAverage
 from preprocessing.moving_average.moving_average_factory import MovingAverageFactory
-from shared.columns import SourceDataColumns, PreprocessingColumns
+from shared.columns import SourceDataColumns, MovingAverageColumns, SignalColumns
 import pandas as pd
 import numpy as np
 
@@ -21,22 +21,21 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
     def find_signals(self, data: pd.DataFrame) -> pd.DataFrame:
         moving_averages = self.get_moving_averages(data, self.quote)
-        short_avg = moving_averages[PreprocessingColumns.SHORT_AVG]
-        buy_threshold = moving_averages[PreprocessingColumns.LONG_AVG] + self.hyst_delta_pips
-        sell_threshold = moving_averages[PreprocessingColumns.LONG_AVG] - self.hyst_delta_pips
+        short_avg = moving_averages[MovingAverageColumns.SHORT_AVG]
+        buy_threshold = moving_averages[MovingAverageColumns.LONG_AVG] + self.hyst_delta_pips
+        sell_threshold = moving_averages[MovingAverageColumns.LONG_AVG] - self.hyst_delta_pips
         levels = self.hysteresis_levels(short_avg.to_numpy(), sell_threshold.to_numpy(), buy_threshold.to_numpy())
         level_changes = levels.astype(int).diff()
         buy_signals = self.find_buy_signals(moving_averages, level_changes)
         sell_signals = self.find_sell_signals(moving_averages, level_changes)
-        signals = pd.merge(buy_signals, sell_signals, on=PreprocessingColumns.TIME, how='outer').fillna(False).sort_values(by=PreprocessingColumns.TIME)
-        return signals[[PreprocessingColumns.TIME, PreprocessingColumns.BUY, PreprocessingColumns.SELL]].reset_index(drop=True)
+        signals = pd.merge(buy_signals, sell_signals, left_index=True, right_index=True, how='outer').fillna(False)
+        return signals
 
 
     def get_moving_averages(self, data: pd.DataFrame, quote: str) -> pd.DataFrame:
-        short_ma = self.short_avg.calc(data[quote])
-        long_ma = self.long_avg.calc(data[quote])
-        moving_averages = pd.concat([data[SourceDataColumns.TIME], short_ma, long_ma], axis=1)
-        moving_averages.columns = [PreprocessingColumns.TIME, PreprocessingColumns.SHORT_AVG, PreprocessingColumns.LONG_AVG]
+        short_ma = self.short_avg.calc(data[quote]).rename(MovingAverageColumns.SHORT_AVG)
+        long_ma = self.long_avg.calc(data[quote]).rename(MovingAverageColumns.LONG_AVG)
+        moving_averages = pd.merge(short_ma, long_ma, left_index=True, right_index=True)
         return moving_averages
 
 
@@ -51,16 +50,16 @@ class MovingAverageSignalStrategy(SignalStrategy):
         return pd.Series(np.where(cnt, above[ind[cnt-1]], initial))
 
 
-    def find_buy_signals(self, ma: pd.DataFrame, level_changes: pd.Series) -> pd.DataFrame:
-        buy_signals = ma[level_changes == 1]
-        buy_signals.insert(1, PreprocessingColumns.BUY, True)
-        return buy_signals
+    def find_buy_signals(self, ma: pd.DataFrame, level_changes: pd.Series) -> pd.Series:
+        buy_signals = ma[(level_changes == 1).values]
+        buy_signals.insert(1, SignalColumns.BUY, True)
+        return buy_signals[SignalColumns.BUY]
 
 
-    def find_sell_signals(self, ma: pd.DataFrame, level_changes: pd.Series) -> pd.DataFrame:
-        sell_signals = ma[level_changes == -1]
-        sell_signals.insert(1, PreprocessingColumns.SELL, True)
-        return sell_signals
+    def find_sell_signals(self, ma: pd.DataFrame, level_changes: pd.Series) -> pd.Series:
+        sell_signals = ma[(level_changes == -1).values]
+        sell_signals.insert(1, SignalColumns.SELL, True)
+        return sell_signals[SignalColumns.SELL]
 
 
     def __repr__(self):

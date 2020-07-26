@@ -12,15 +12,15 @@ class HistDataReader(SourceReader):
         self.sep = ';'
         self.header = None
         self.columns = [0, 1, 2, 3, 4]
-        self.column_names = [SourceDataColumns.TIME, 
-                            SourceDataColumns.PRICE_OPEN, 
-                            SourceDataColumns.PRICE_HIGH, 
-                            SourceDataColumns.PRICE_LOW, 
-                            SourceDataColumns.PRICE_CLOSE]
-        self.date_column = 0
+        self.column_names = ['time',
+                            SourceDataColumns.QUOTE_OPEN, 
+                            SourceDataColumns.QUOTE_HIGH, 
+                            SourceDataColumns.QUOTE_LOW, 
+                            SourceDataColumns.QUOTE_CLOSE]
+        self.time_column = 0
         self.data_tz = 'US/Eastern'
         self.local_tz = -timezone # tz is returned as seconds west of UTC (meaning the sign is reversed compared to usual notation)
-        self.csv_reader = CsvReader(self.sep, self.columns, self.column_names, self.header, self.date_column, self.data_tz, self.local_tz)
+        self.csv_reader = CsvReader(self.sep, self.columns, self.column_names, self.header, self.time_column, self.data_tz, self.local_tz)
 
 
     def load_dataframe(self, fp: str) -> pd.DataFrame:

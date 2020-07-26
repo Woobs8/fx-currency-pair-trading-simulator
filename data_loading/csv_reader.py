@@ -19,18 +19,18 @@ class CsvReader:
 
 
     def load(self, fp: str) -> pd.DataFrame:
-        df =  pd.read_csv(fp, sep=self.sep, usecols=self.columns, names=self.column_names, header=self.header, parse_dates=[self.time_column])
+        df =  pd.read_csv(fp, sep=self.sep, usecols=self.columns, names=self.column_names, header=self.header, parse_dates=[self.time_column], index_col=self.time_column)
         if self.data_tz is not None:
-            df.iloc[:, self.time_column] = self.set_timezone(df.iloc[:, self.time_column])
+            df = df.tz_localize(self.data_tz)
 
         if self.local_tz is not None:
-            df.iloc[:, self.time_column] = self.convert_timezone(df.iloc[:, self.time_column])
+           df = df.tz_convert(self.local_tz)
         return df
 
 
     def set_timezone(self, df: pd.DataFrame) -> pd.DataFrame:
-        return df.dt.tz_localize(self.data_tz)
+        return df.tz_localize(self.data_tz)
 
 
     def convert_timezone(self, df: pd.DataFrame) -> pd.DataFrame:
-        return df.dt.tz_convert(self.local_tz)
+        return df.tz_convert(self.local_tz)

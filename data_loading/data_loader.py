@@ -33,8 +33,7 @@ class DataLoader:
         print('Loading data from sources.')
         data_sources = get_data_sources(currency_pair, years)
         loaded_sources = list(map(self.load_data_source, data_sources))
-        df = pd.concat(loaded_sources, axis=0)
-        return df.sort_values(by=[SourceDataColumns.TIME]).reset_index(drop=True)
+        return pd.concat(loaded_sources, axis=0).sort_index()
 
 
     def load_data_source(self, fp: str) -> pd.DataFrame:

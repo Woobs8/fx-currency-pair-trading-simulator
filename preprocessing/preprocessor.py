@@ -2,7 +2,7 @@ from caching.cache import Cache
 import pandas as pd
 from preprocessing.signal_strategy.signal_strategy import SignalStrategy
 from preprocessing.stopping_strategy.stopping_strategy import StoppingStrategy
-from shared.columns import SourceDataColumns, PreprocessingColumns
+from shared.columns import SourceDataColumns, SignalColumns
 
 
 class Preprocessor:
@@ -31,4 +31,4 @@ class Preprocessor:
         print('Finding signals for [signal_strat={}, stopping_strat={}].'.format(self.signal_strat, self.stop_strat))
         signals = self.signal_strat.find_signals(data)
         stopping_criterias = self.stop_strat.find_stopping_criteria(signals, data)
-        return pd.merge(signals, stopping_criterias, how='inner', on=PreprocessingColumns.TIME)
+        return pd.merge(signals, stopping_criterias, left_index=True, right_index=True)

@@ -4,10 +4,11 @@ from caching.cache import Cache
 from data_loading.fileutils import get_latest_source_modification
 from data_loading.source_reader.hist_data_reader import HistDataReader
 from data_loading.data_loader import DataLoader
-from data_loading.summary import print_data_summary
 from preprocessing.preprocessor import Preprocessor
 from preprocessing.signal_strategy.signal_strategy_factory import SignalStrategyFactory
 from preprocessing.stopping_strategy.stopping_strategy_factory import StoppingStrategyFactory
+from analysis.summary import print_data_summary
+from analysis.signal_analyzer import SignalAnalyzer
 
 
 def initialize(currency_pair: str) -> None:
