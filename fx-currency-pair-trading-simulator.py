@@ -65,3 +65,6 @@ if __name__ == '__main__':
     data = data_loading(args.currency_pair, args.no_cache)
     signals = preprocessing(args.currency_pair, data, args.signal, args.mafnc, args.short, args.long, args.quote, args.hyst, args.stop, args.profit, args.loss, args.lookback, args.no_cache)
     print(signals)
+    analyzer = SignalAnalyzer(data, signals)
+    stats = analyzer.get_buy_stats(2019)
+    print(stats)
