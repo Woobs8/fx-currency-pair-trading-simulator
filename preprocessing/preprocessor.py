@@ -9,21 +9,20 @@ class Preprocessor:
 
     def __init__(self, currency_pair: str, signal_strat: SignalStrategy, stop_strat: StoppingStrategy):
         self.currency_pair = currency_pair
-        self.cache = Cache(self.currency_pair)
         self.signal_strat = signal_strat
         self.stop_strat = stop_strat
             
 
     def get_signals(self, data: pd.DataFrame) -> pd.DataFrame:
         cache_key = '{}__{}__{}'.format(self.currency_pair, self.signal_strat, self.stop_strat)
-
-        if self.cache.cache_exists and self.cache.contains(cache_key):
+        cache = Cache.get()
+        if cache.cache_exists and cache.contains(cache_key):
             print('Loading signals for [{}] from cache.'.format(cache_key))
-            signals = self.cache.fetch(cache_key)
+            signals = cache.fetch(cache_key)
         else:
             signals = self.find_signals(data)
             print('Caching result for [{}].'.format(cache_key))
-            self.cache.put(signals, cache_key)
+            cache.put(signals, cache_key)
         return signals
 
 

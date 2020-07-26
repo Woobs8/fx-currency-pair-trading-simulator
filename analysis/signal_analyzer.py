@@ -6,37 +6,32 @@ from shared.columns import ResolvedSignalColumns
 
 class SignalAnalyzer:
 
-    def __init__(self, data_series: pd.DataFrame, signals: pd.DataFrame, ignore_reverse: bool = False):
-        self.data_series = data_series
-        self.signals = signals
-        self.ignore_reverse = ignore_reverse
-        self.resolver = SignalResolver(self.data_series, ignore_reverse)
-        self.resolved_signals = self.resolver.resolve_signals(self.signals)
+    def __init__(self, resolved_signals: pd.DataFrame):
+        self.resolved_signals = resolved_signals
 
 
-    def get_resolved_signals(self, year: int = None) -> pd.DataFrame:
-        if year is not None:
-            return resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year]
-        return self.resolved_signals
-
-
-    def get_stats(self, year: int = None) -> dict:
-        buy_stats = self.get_buy_stats(year)
-        sell_stats = self.get_sell_stats(year)
+    def get_stats(self, start_year: int = None, stop_year: int = None) -> dict:
+        buy_stats = self.get_buy_stats(start_year, stop_year)
+        sell_stats = self.get_sell_stats(start_year, stop_year)
         return {'buy': buy_stats, 'sell': sell_stats}
 
 
-    def get_buy_stats(self, year: int = None) -> dict:
+    def get_buy_stats(self, start_year: int = None, stop_year: int = None) -> dict:
         buy_signals = self.resolved_signals[self.resolved_signals[ResolvedSignalColumns.TYPE] == SignalTypes.BUY]
-        if year is not None:
-            buy_signals = buy_signals[buy_signals[ResolvedSignalColumns.OPEN].dt.year == year]
+        buy_signals = self.filter_between_years(buy_signals, start_year, stop_year)
         return self.calc_signals_stats(buy_signals)
 
+
+    def filter_between_years(self, signals: pd.DataFrame, start_year: int = None, stop_year: int = None):
+        if start_year is not None:
+            signals = signals[signals[ResolvedSignalColumns.OPEN].dt.year >= year]
+        if stop_year is not None:
+            signals = signals[signals[ResolvedSignalColumns.OPEN].dt.year <= year]
+        return signals
     
-    def get_sell_stats(self, year: int = None) -> dict:
+    def get_sell_stats(self, start_year: int = None, stop_year: int = None) -> dict:
         sell_signals = self.resolved_signals[self.resolved_signals[ResolvedSignalColumns.TYPE] == SignalTypes.SELL]
-        if year is not None:
-            sell_signals = sell_signals[sell_signals[ResolvedSignalColumns.OPEN].dt.year == year]
+        sell_signals = self.filter_between_years(sell_signals, start_year, stop_year)
         return self.calc_signals_stats(sell_signals)
 
 

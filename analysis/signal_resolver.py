@@ -1,8 +1,10 @@
 import pandas as pd
+from caching.cache import Cache
 from analysis.closing_causes import ClosingCauses
 from analysis.signal_types import SignalTypes
 from shared.columns import SourceDataColumns as sourcecol, SignalColumns as sigcol, ResolvedSignalColumns as ressigcol
 from datetime import datetime
+import hashlib
 
 class SignalResolver:
 
@@ -10,6 +12,20 @@ class SignalResolver:
         self.data_series = data_series
         self.ignore_reverse = ignore_reverse
         self.columns = [ressigcol.OPEN, ressigcol.OPEN_QUOTE, ressigcol.TYPE, ressigcol.STOP_PROFIT, ressigcol.STOP_LOSS, ressigcol.CLOSE, ressigcol.NET_GAIN, ressigcol.CAUSE]
+
+
+    def get_resolve_signals(self, signals: pd.DataFrame) -> pd.DataFrame:
+        signals_hash = hashlib.sha1(pd.util.hash_pandas_object(signals).values).hexdigest()
+        cache_key = 'k{}_{}'.format(signals_hash, self.ignore_reverse)
+        cache = Cache.get()
+        if cache.cache_exists and cache.contains(cache_key):
+            print('Loading resolved signals for [{}] from cache.'.format(cache_key))
+            resolved_signals = cache.fetch(cache_key)
+        else:
+            resolved_signals = self.resolve_signals(signals)
+            print('Caching result for [{}].'.format(cache_key))
+            cache.put(resolved_signals, cache_key)
+        return resolved_signals
 
 
     def resolve_signals(self, signals: pd.DataFrame) -> pd.DataFrame:

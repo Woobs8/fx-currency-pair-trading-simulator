@@ -8,11 +8,13 @@ from preprocessing.preprocessor import Preprocessor
 from preprocessing.signal_strategy.signal_strategy_factory import SignalStrategyFactory
 from preprocessing.stopping_strategy.stopping_strategy_factory import StoppingStrategyFactory
 from analysis.summary import print_data_summary
+from analysis.signal_resolver import SignalResolver
 from analysis.signal_analyzer import SignalAnalyzer
 
 
 def initialize(currency_pair: str) -> None:
-    cache = Cache(currency_pair)
+    Cache.configure(currency_pair)
+    cache = Cache.get()
     source_mod_time = get_latest_source_modification(currency_pair)
     if cache.cache_exists() and cache.get_data_mod_time() < source_mod_time:
         print('Cache invalid. Clearing cache.')
@@ -45,16 +47,22 @@ def preprocessing(currency_pair: str, data: pd.DataFrame, signal_strat: str, ma_
         return preprocessor.get_signals(data)
 
 
-def analyze(data: pd.DataFrame, signals: pd.DataFrame, ignore_reverse: bool, year: int = None):
-    analyzer = SignalAnalyzer(data, signals, ignore_reverse)
-    resolved_signals = analyzer.get_resolved_signals(year)
-    stats = analyzer.get_buy_stats(year)
+def analyze(data: pd.DataFrame, signals: pd.DataFrame, start_year: int, stop_year: int, ignore_reverse: bool, no_cache: bool):
+    resolver = SignalResolver(data, ignore_reverse)
+    if no_cache:
+        resolved_signals = resolver.resolve_signals(signals)
+    else:
+        resolved_signals = resolver.get_resolve_signals(signals)
+    analyzer = SignalAnalyzer(resolved_signals)
+    stats = analyzer.get_stats(start_year, stop_year)
     return resolved_signals, stats
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Trading simulator for FX currency-pairs')
     parser.add_argument('currency_pair', type=str, help='name of FX currency-pair', choices=['eurusd'])
+    parser.add_argument('-start', type=int, help='starting year for the simulation (earliest if not specified)')
+    parser.add_argument('-stop', type=int, help='Stopping year for the simulation (latest if not specified)')
     parser.add_argument('--signal', type=str, help='strategy for detecting buy/sell signals', choices=['ma'], required=True)
     parser.add_argument('--mafnc', type=str, help='moving average function', choices=['sma', 'ema'])
     parser.add_argument('--short', type=int, help='short window for moving average (in minutes)')
@@ -62,7 +70,7 @@ if __name__ == '__main__':
     parser.add_argument('--quote', type=str, help='the quote to use for the selected tick resolution', choices=['open', 'close', 'high', 'low'], default='close')
     parser.add_argument('--tick', type=int, help='tick period (in minutes)', choices=[1, 60], default=1)
     parser.add_argument('--hyst', type=int, help='hysteresis (in pips)')
-    parser.add_argument('--stop', type=str, help='strategy for stopping criterias', choices=['offset', 'fib'], required=True)
+    parser.add_argument('--stopping', type=str, help='strategy for stopping criterias', choices=['offset', 'fib'], required=True)
     parser.add_argument('--profit', type=int, help='delta pips for setting stop profit')
     parser.add_argument('--loss', type=int, help='delta pips for setting stop loss')
     parser.add_argument('--lookback', '--lb', type=int, help='duration (in minutes) to lookback when using fibonacci method for stopping criteria')
@@ -70,8 +78,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-cache', '--nc', action='store_true', help='ignore caches and load data from source')
 
     args = parser.parse_args()
+    initialize(args.currency_pair)
     data = data_loading(args.currency_pair, args.no_cache)
-    signals = preprocessing(args.currency_pair, data, args.signal, args.mafnc, args.short, args.long, args.quote, args.hyst, args.stop, args.profit, args.loss, args.lookback, args.no_cache)
+    signals = preprocessing(args.currency_pair, data, args.signal, args.mafnc, args.short, args.long, args.quote, args.hyst, args.stopping, args.profit, args.loss, args.lookback, args.no_cache)
     print(signals)
-    resolved_signals, stats = analyze(data, signals, args.ignore_reverse)
+    resolved_signals, stats = analyze(data, signals, args.start, args.stop, args.ignore_reverse, args.no_cache)
     print(stats)

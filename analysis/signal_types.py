@@ -1,5 +1,5 @@
-from enum import Enum
+from enum import IntEnum
 
-class SignalTypes(Enum):
-    BUY = 'buy'
-    SELL = 'sell'
+class SignalTypes(IntEnum):
+    BUY = 1
+    SELL = 2

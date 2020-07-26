@@ -15,7 +15,7 @@ class DataLoader:
 
 
     def load(self, currency_pair: str) -> pd.DataFrame:
-        cache = Cache(currency_pair)
+        cache = Cache.get()
         if cache.cache_exists():
             print('Cache detected. Loading data from cache.')
             data = cache.fetch(self.DATA_CACHE_KEY)

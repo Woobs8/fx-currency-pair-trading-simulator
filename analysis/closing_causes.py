@@ -1,6 +1,6 @@
-from enum import Enum
+from enum import IntEnum
 
-class ClosingCauses(Enum):
-    STOP_PROFIT = 'profit'
-    STOP_LOSS = 'loss'
-    REVERSE_SIGNAL = 'reverse'
+class ClosingCauses(IntEnum):
+    STOP_PROFIT = 1
+    STOP_LOSS = 2
+    REVERSE_SIGNAL = 3

@@ -10,7 +10,24 @@ LATEST_MOD_COL = 'latest_mod'
 
 
 class Cache:
+
+    currency_pair = None
+    instance = None
+
+    @classmethod
+    def configure(cls, currency_pair: str) -> None:
+        cls.currency_pair = currency_pair
     
+
+    @classmethod
+    def get(cls):
+        if cls.currency_pair is None:
+            raise RuntimeError('Cache not configured with currency_pair')
+        if cls.instance is None:
+            cls.instance = Cache(cls.currency_pair)
+        return cls.instance
+
+
     def __init__(self, currency_pair: str):
         self.currency_pair = currency_pair
         self.cache_path = self.get_abs_cache_path(currency_pair)
