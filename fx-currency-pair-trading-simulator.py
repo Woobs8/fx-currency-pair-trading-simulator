@@ -45,6 +45,13 @@ def preprocessing(currency_pair: str, data: pd.DataFrame, signal_strat: str, ma_
         return preprocessor.get_signals(data)
 
 
+def analyze(data: pd.DataFrame, signals: pd.DataFrame, year: int = None):
+    analyzer = SignalAnalyzer(data, signals)
+    resolved_signals = analyzer.get_resolved_signals(year)
+    stats = analyzer.get_buy_stats(year)
+    return resolved_signals, stats
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Trading simulator for FX currency-pairs')
     parser.add_argument('currency_pair', type=str, help='name of FX currency-pair', choices=['eurusd'])
@@ -65,6 +72,5 @@ if __name__ == '__main__':
     data = data_loading(args.currency_pair, args.no_cache)
     signals = preprocessing(args.currency_pair, data, args.signal, args.mafnc, args.short, args.long, args.quote, args.hyst, args.stop, args.profit, args.loss, args.lookback, args.no_cache)
     print(signals)
-    analyzer = SignalAnalyzer(data, signals)
-    stats = analyzer.get_buy_stats(2019)
+    resolved_signals, stats = analyze(data, signals)
     print(stats)

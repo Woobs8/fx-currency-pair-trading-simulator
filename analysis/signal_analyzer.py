@@ -13,7 +13,9 @@ class SignalAnalyzer:
         self.resolved_signals = self.resolver.resolve_signals(self.signals)
 
 
-    def get_resolved_signals(self) -> pd.DataFrame:
+    def get_resolved_signals(self, year: int = None) -> pd.DataFrame:
+        if year is not None:
+            return resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year]
         return self.resolved_signals
 
 
@@ -38,11 +40,11 @@ class SignalAnalyzer:
 
 
     def calc_signals_stats(self, signals: pd.DataFrame) -> dict:
-        delta_pips_stats = self.calc_normal_distribution(signals)
+        net_gain_stats = self.calc_normal_distribution(signals[ResolvedSignalColumns.NET_GAIN])
         duration = signals[ResolvedSignalColumns.CLOSE] - signals[ResolvedSignalColumns.OPEN] 
         duration_stats = self.calc_normal_distribution(duration)
         closing_cause_count = signals[ResolvedSignalColumns.CAUSE].value_counts()
-        return {'delta_pips': delta_pips_stats, 'duration': duration_stats, 'closings': closing_cause_count.to_dict()}
+        return {'net_gain': net_gain_stats, 'duration': duration_stats, 'closings': closing_cause_count.to_dict()}
 
 
     def calc_normal_distribution(self, data: pd.Series) -> dict:

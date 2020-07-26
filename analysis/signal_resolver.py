@@ -55,7 +55,7 @@ class SignalResolver:
             closing_time = take_loss_at
             cause = ClosingCauses.STOP_LOSS
         else:
-            closing_quote = position_window.tail(1)[sourcecol.QUOTE_OPEN]
+            closing_quote = position_window.iloc[-1, :][sourcecol.QUOTE_OPEN]
             closing_time = position_window.index[-1].to_pydatetime()
             cause = ClosingCauses.REVERSE_SIGNAL
         
@@ -63,6 +63,7 @@ class SignalResolver:
             net_pips_gain = closing_quote - opening_quote
         else:
             net_pips_gain = opening_quote - closing_quote
+
         return pd.Series([opened_at, opening_quote, signal_type, stop_profit, stop_loss, closing_time, net_pips_gain, cause], index=self.columns)
 
 
