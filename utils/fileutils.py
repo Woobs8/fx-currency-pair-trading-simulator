@@ -3,7 +3,10 @@ from datetime import datetime
 from time import timezone
 import pytz
 
+CACHE_DIRECTORY = '.cache'
 DATA_DIRECTORY = 'data'
+OUTPUT_DIRECTORY = 'out'
+
 
 def get_latest_source_modification(currency_pair: str, years: list = None) -> datetime:
     data_sources = get_data_sources(currency_pair, years)
@@ -21,9 +24,25 @@ def get_data_sources(currency_pair: str, years: list = None) -> list:
 
 
 def get_data_dir() -> str:
+    return get_abs_path_to_top_level_dir(DATA_DIRECTORY)
+
+
+def get_abs_path_to_top_level_dir(dir: str):
     dir_name = path.dirname(__file__)
-    data_path = path.join(dir_name, '../{}'.format(DATA_DIRECTORY))
+    data_path = path.join(dir_name, '../{}'.format(dir))
     return path.abspath(data_path)
+
+
+def get_cache_dir() -> str:
+    return get_abs_path_to_top_level_dir(CACHE_DIRECTORY)
+
+
+def get_output_dir(simulation_id: str = None) -> str:
+    output_dir = get_abs_path_to_top_level_dir(OUTPUT_DIRECTORY)
+    if simulation_id is not None:
+        return '{}/{}'.format(output_dir, simulation_id)
+    else:
+        return output_dir
 
 
 def filter_by_years(files: list, years: list) -> list:

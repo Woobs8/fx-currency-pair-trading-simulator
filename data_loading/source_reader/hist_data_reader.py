@@ -19,7 +19,7 @@ class HistDataReader(SourceReader):
                             SourceDataColumns.QUOTE_CLOSE]
         self.time_column = 0
         self.data_tz = 'US/Eastern'
-        self.local_tz = -timezone # tz is returned as seconds west of UTC (meaning the sign is reversed compared to usual notation)
+        self.local_tz = 'UTC'#-timezone # tz is returned as seconds west of UTC (meaning the sign is reversed compared to usual notation)
         self.csv_reader = CsvReader(self.sep, self.columns, self.column_names, self.header, self.time_column, self.data_tz, self.local_tz)
 
 

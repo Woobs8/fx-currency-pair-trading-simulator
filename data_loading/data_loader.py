@@ -1,7 +1,7 @@
 import pandas as pd
 from caching.cache import Cache
 from data_loading.source_reader.source_reader import SourceReader
-from data_loading.fileutils import get_latest_source_modification, get_data_sources
+from utils.fileutils import get_latest_source_modification, get_data_sources
 from shared.columns import SourceDataColumns
 import os
 

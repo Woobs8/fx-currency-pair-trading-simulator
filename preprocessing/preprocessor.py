@@ -7,14 +7,13 @@ from shared.columns import SourceDataColumns, SignalColumns
 
 class Preprocessor:
 
-    def __init__(self, currency_pair: str, signal_strat: SignalStrategy, stop_strat: StoppingStrategy):
-        self.currency_pair = currency_pair
+    def __init__(self, signal_strat: SignalStrategy, stop_strat: StoppingStrategy):
         self.signal_strat = signal_strat
         self.stop_strat = stop_strat
             
 
     def get_signals(self, data: pd.DataFrame) -> pd.DataFrame:
-        cache_key = '{}__{}__{}'.format(self.currency_pair, self.signal_strat, self.stop_strat)
+        cache_key = '{}__{}'.format(self.signal_strat, self.stop_strat)
         cache = Cache.get()
         if cache.cache_exists and cache.contains(cache_key):
             print('Loading signals for [{}] from cache.'.format(cache_key))

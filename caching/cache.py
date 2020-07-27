@@ -2,6 +2,7 @@ from os import path, makedirs, remove
 import pandas as pd
 from caching.hdf5_storage import HDF5Storage
 from datetime import datetime
+from utils.fileutils import get_cache_dir
 
 
 CACHE_DIRECTORY = '.cache'
@@ -36,7 +37,7 @@ class Cache:
 
     def get_abs_cache_path(self, currency_pair: str):
         dir_name = path.dirname(__file__)
-        cache_dir = path.join(dir_name, '../{}'.format(CACHE_DIRECTORY))
+        cache_dir = get_cache_dir()
         cache_path = '{}/{}.h5'.format(cache_dir, currency_pair)
         return path.abspath(cache_path)
 
