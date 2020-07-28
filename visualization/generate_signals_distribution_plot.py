@@ -3,9 +3,9 @@ import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
 from os import path, makedirs
-from shared.columns import ResolvedSignalColumns
+from shared import ResolvedSignalColumns
 from utils.fileutils import get_output_dir
-from analysis.signal_types import SignalTypes
+from analysis import SignalTypes
 
 
 def generate_signals_distribution_plot(title: str, signals: pd.DataFrame, col: str, bin_size: int, start: datetime = None, stop: datetime = None, simulation_id: str = None):

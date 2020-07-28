@@ -1,6 +1,6 @@
-from preprocessing.signal_strategy.signal_strategy import SignalStrategy
-from preprocessing.signal_strategy.moving_average_signal_strategy import MovingAverageSignalStrategy
-from preprocessing.moving_average.moving_average_factory import MovingAverageFactory
+from .moving_average_signal_strategy import MovingAverageSignalStrategy
+from .signal_strategy import SignalStrategy
+from ..moving_average.moving_average_factory import MovingAverageFactory
 
 
 SIGNAL_STRATEGIES = {'ma':MovingAverageSignalStrategy}

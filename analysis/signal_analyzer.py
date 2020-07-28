@@ -1,9 +1,9 @@
 import pandas as pd
 from datetime import datetime
-from analysis.signal_resolver import SignalResolver
-from analysis.signal_types import SignalTypes
-from analysis.closing_causes import ClosingCauses
-from shared.columns import ResolvedSignalColumns
+from .signal_resolver import SignalResolver
+from .closing_causes import ClosingCauses
+from .signal_types import SignalTypes
+from shared import ResolvedSignalColumns
 
 class SignalAnalyzer:
 

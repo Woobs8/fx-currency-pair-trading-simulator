@@ -1,8 +1,8 @@
 import pandas as pd
-from caching.cache import Cache
-from analysis.closing_causes import ClosingCauses
-from analysis.signal_types import SignalTypes
-from shared.columns import SourceDataColumns as sourcecol, SignalColumns as sigcol, ResolvedSignalColumns as ressigcol
+from caching import Cache
+from .closing_causes import ClosingCauses
+from .signal_types import SignalTypes
+from shared import SourceDataColumns as sourcecol, SignalColumns as sigcol, ResolvedSignalColumns as ressigcol
 from datetime import datetime
 import hashlib
 

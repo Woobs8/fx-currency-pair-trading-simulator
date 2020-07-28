@@ -1,7 +1,6 @@
-from preprocessing.signal_strategy.signal_strategy import SignalStrategy
-from preprocessing.moving_average.moving_average import MovingAverage
-from preprocessing.moving_average.moving_average_factory import MovingAverageFactory
-from shared.columns import SourceDataColumns, MovingAverageColumns, SignalColumns
+from .signal_strategy import SignalStrategy
+from ..moving_average.moving_average_factory import MovingAverageFactory
+from shared import SourceDataColumns, MovingAverageColumns, SignalColumns
 import pandas as pd
 import numpy as np
 
@@ -10,20 +9,19 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
     PIPS_SCALING = 1/10000
 
-
-    def __init__(self, avg_fnc: str, short_window: int, long_window: int, quote: str, hysteresis: int):
+    def __init__(self, avg_fnc: str, short_window: int, long_window: int, quote: str, delta: int):
         self.short_avg = MovingAverageFactory.get(avg_fnc, window=short_window)
         self.long_avg = MovingAverageFactory.get(avg_fnc, window=long_window)
         self.quote = quote
-        self.hysteresis = hysteresis
-        self.hyst_delta_pips = hysteresis * self.PIPS_SCALING
+        self.delta = delta
+        self.delta_scaled = delta * self.PIPS_SCALING
 
 
     def find_signals(self, data: pd.DataFrame) -> pd.DataFrame:
         moving_averages = self.get_moving_averages(data, self.quote)
         short_avg = moving_averages[MovingAverageColumns.SHORT_AVG]
-        buy_threshold = moving_averages[MovingAverageColumns.LONG_AVG] + self.hyst_delta_pips
-        sell_threshold = moving_averages[MovingAverageColumns.LONG_AVG] - self.hyst_delta_pips
+        buy_threshold = moving_averages[MovingAverageColumns.LONG_AVG] + self.delta_scaled
+        sell_threshold = moving_averages[MovingAverageColumns.LONG_AVG] - self.delta_scaled
         levels = self.hysteresis_levels(short_avg.to_numpy(), sell_threshold.to_numpy(), buy_threshold.to_numpy())
         level_changes = levels.astype(int).diff()
         buy_signals = self.find_buy_signals(moving_averages, level_changes)
@@ -63,8 +61,8 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
 
     def __repr__(self):
-        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.hysteresis)
+        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta)
 
 
     def __str__(self):
-        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.hysteresis)
+        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta)

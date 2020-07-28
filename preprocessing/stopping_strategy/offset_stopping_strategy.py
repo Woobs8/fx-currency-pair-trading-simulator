@@ -1,5 +1,5 @@
-from preprocessing.stopping_strategy.stopping_strategy import StoppingStrategy
-from shared.columns import SourceDataColumns, SignalColumns
+from .stopping_strategy import StoppingStrategy
+from shared import SourceDataColumns, SignalColumns
 import pandas as pd
 
 

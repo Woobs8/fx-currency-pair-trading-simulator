@@ -1,10 +1,10 @@
 import pandas as pd
-from data_loading.source_reader.source_reader import SourceReader
+from .source_reader import SourceReader
+from ..csv_reader import CsvReader
+from shared import SourceDataColumns
 from zipfile import ZipFile
 import os
 from time import timezone
-from data_loading.csv_reader import CsvReader
-from shared.columns import SourceDataColumns
 
 
 class HistDataReader(SourceReader):

@@ -1,6 +1,6 @@
-from preprocessing.moving_average.moving_average import MovingAverage
-from preprocessing.moving_average.exponential_moving_average import ExponentialMovingAverage
-from preprocessing.moving_average.simple_moving_average import SimpleMovingAverage
+from .moving_average_function import MovingAverageFunction
+from .exponential_moving_average import ExponentialMovingAverage
+from .simple_moving_average import SimpleMovingAverage
 
 
 MOVING_AVERAGES = {'sma':SimpleMovingAverage, 'ema':ExponentialMovingAverage}
@@ -9,7 +9,7 @@ MOVING_AVERAGES = {'sma':SimpleMovingAverage, 'ema':ExponentialMovingAverage}
 class MovingAverageFactory:
 
     @staticmethod
-    def get(fnc: str, **kwargs) -> MovingAverage:
+    def get(fnc: str, **kwargs) -> MovingAverageFunction:
         try:
             return MOVING_AVERAGES[fnc](**kwargs)
         except Exception:

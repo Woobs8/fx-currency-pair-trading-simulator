@@ -1,6 +1,6 @@
 from yattag import Doc
 from utils.fileutils import get_output_dir
-from os import path
+from os import path, makedirs
 import numpy as np
 import pandas as pd
 

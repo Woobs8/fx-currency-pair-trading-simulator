@@ -1,0 +1,4 @@
+from .moving_average.moving_average_factory import MovingAverageFactory
+from .signal_strategy.signal_strategy_factory import SignalStrategyFactory
+from .stopping_strategy.stopping_strategy_factory import StoppingStrategyFactory
+from .preprocessor import Preprocessor

@@ -1,8 +1,7 @@
 import plotly.graph_objects as go
 import pandas as pd
-from shared.columns import SourceDataColumns, MovingAverageColumns, ResolvedSignalColumns
-from analysis.signal_types import SignalTypes
-from analysis.closing_causes import ClosingCauses
+from shared import SourceDataColumns, MovingAverageColumns, ResolvedSignalColumns
+from analysis import SignalTypes, ClosingCauses
 from utils.fileutils import get_output_dir
 from os import path, makedirs
 from tqdm import tqdm
@@ -10,7 +9,7 @@ from datetime import datetime
 from utils.timezone import get_local_timezone
 
 
-def generate_signals_timeseries_plot(data: pd.Series, resolved_signals: pd.DataFrame, moving_averages: pd.DataFrame = None, start: datetime = None, stop: datetime = None, simulation_id: str = None):
+def generate_signals_timeseries_plot(data: pd.Series, resolved_signals: pd.DataFrame, moving_averages: pd.DataFrame, start: datetime = None, stop: datetime = None, simulation_id: str = None):
     output_dir = get_output_dir(simulation_id)
     if not path.exists(output_dir):
         makedirs(output_dir, exist_ok=True)
@@ -23,10 +22,7 @@ def generate_signals_timeseries_plot(data: pd.Series, resolved_signals: pd.DataF
     for year in progress:
         progress.set_description('Processing {}'.format(year))
         output_fp = '{}/{}_signals.html'.format(output_dir, year)
-        if moving_averages is not None:   
-            plot_signals_series(output_fp, year, data[data.index.year == year], resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year], moving_averages[moving_averages.index.year == year])
-        else:
-            plot_signals_series(output_fp, year, data[data.index.year == year], resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year])
+        plot_signals_series(output_fp, year, data[data.index.year == year], resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year], moving_averages[moving_averages.index.year == year])
 
 
 
@@ -44,7 +40,7 @@ def filter_between_years(df: pd.DataFrame, start: datetime = None, stop: datetim
     return df
 
 
-def plot_signals_series(fp: str, title: str, data: pd.DataFrame, resolved_signals: pd.DataFrame, moving_averages: pd.DataFrame = None):
+def plot_signals_series(fp: str, title: str, data: pd.DataFrame, resolved_signals: pd.DataFrame, moving_averages: pd.DataFrame):
     layout = go.Layout(
         title=title,
         xaxis=dict(
@@ -57,9 +53,8 @@ def plot_signals_series(fp: str, title: str, data: pd.DataFrame, resolved_signal
 
     fig = go.Figure(layout=layout)
     add_line(data, fig, 'open bid')
-    if moving_averages is not None: 
-        add_line(moving_averages[MovingAverageColumns.SHORT_AVG], fig, 'short')
-        add_line(moving_averages[MovingAverageColumns.LONG_AVG], fig, 'long')
+    add_line(moving_averages[MovingAverageColumns.SHORT_AVG], fig, 'short')
+    add_line(moving_averages[MovingAverageColumns.LONG_AVG], fig, 'long')
     add_signals(resolved_signals, fig)
     fig.write_html(fp)
 

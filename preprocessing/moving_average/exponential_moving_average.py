@@ -1,7 +1,8 @@
-from preprocessing.moving_average.moving_average import MovingAverage
+from .moving_average_function import MovingAverageFunction
 import pandas as pd
 
-class ExponentialMovingAverage(MovingAverage):
+
+class ExponentialMovingAverage(MovingAverageFunction):
 
     def calc(self, data: pd.Series) -> pd.Series:
         return data.ewm(span=self.window, adjust=False).mean()

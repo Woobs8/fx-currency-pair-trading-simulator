@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 
-class MovingAverage(ABC):
+class MovingAverageFunction(ABC):
 
     def __init__(self, window: int):
         self.window = window

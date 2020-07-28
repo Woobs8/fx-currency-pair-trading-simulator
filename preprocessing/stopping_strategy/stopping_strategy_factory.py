@@ -1,5 +1,5 @@
-from preprocessing.stopping_strategy.offset_stopping_strategy import OffsetStoppingStrategy
-from preprocessing.stopping_strategy.stopping_strategy import StoppingStrategy
+from .offset_stopping_strategy import OffsetStoppingStrategy
+from .stopping_strategy import StoppingStrategy
 
 
 STOPPING_STRATEGIES = {'offset':OffsetStoppingStrategy}

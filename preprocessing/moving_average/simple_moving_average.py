@@ -1,7 +1,7 @@
-from preprocessing.moving_average.moving_average import MovingAverage
+from .moving_average_function import MovingAverageFunction
 import pandas as pd
 
-class SimpleMovingAverage(MovingAverage):
+class SimpleMovingAverage(MovingAverageFunction):
 
     def calc(self, data: pd.DataFrame) -> pd.Series:
         return data.rolling(window=window).mean()

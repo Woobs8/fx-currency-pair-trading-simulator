@@ -1,6 +1,6 @@
 from os import path, makedirs, remove
 import pandas as pd
-from caching.hdf5_storage import HDF5Storage
+from .hdf5_storage import HDF5Storage
 from datetime import datetime
 from utils.fileutils import get_cache_dir
 

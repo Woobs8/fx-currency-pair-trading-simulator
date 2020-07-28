@@ -9,5 +9,5 @@ def valid_date(date: str) -> datetime:
             return datetime.strptime(date, fmt).replace(tzinfo=timezone.utc)
         except ValueError:
             pass
-        msg = "Not a valid date: '{0}'.".format(date)
-        raise argparse.ArgumentTypeError(msg)
+    msg = "Not a valid date: '{0}'.".format(date)
+    raise argparse.ArgumentTypeError(msg)
