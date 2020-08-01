@@ -7,11 +7,11 @@ SUPPORTED_CURRENCY_PAIRS = ['eurusd']
 
 def parse_general_args(config_module) -> SimpleNamespace:
     currency_pair = parse_arg(config_module.CURRENCY_PAIR, 'currency_pair', valid_currency_pair, required=True)
-    start = parse_arg(config_module.START, '--start', valid_date)
-    stop = parse_arg(config_module.STOP, '--stop', valid_date)
+    start = parse_arg(config_module.START, '--start', valid_date) if hasattr(config_module, 'START') else None
+    stop = parse_arg(config_module.STOP, '--stop', valid_date) if hasattr(config_module, 'STOP') else None
     quote = parse_arg(config_module.QUOTE, '--quote', type=str, required=True)
-    no_cache = parse_arg(config_module.NO_CACHE, '--no_cache', type=bool)
-    ignore_reverse = parse_arg(config_module.IGNORE_REVERSE, '--ignore_reverse', type=bool)
+    no_cache = parse_arg(config_module.NO_CACHE, '--no_cache', type=bool) if hasattr(config_module, 'NO_CACHE') else False
+    reverse = parse_arg(config_module.REVERSE, '--reverse', type=bool) if hasattr(config_module, 'REVERSE') else False
     
     return SimpleNamespace(
         currency_pair=currency_pair,
@@ -19,7 +19,7 @@ def parse_general_args(config_module) -> SimpleNamespace:
         stop=stop,
         quote=quote,
         no_cache=no_cache,
-        ignore_reverse=ignore_reverse)
+        reverse=reverse)
 
 
 def valid_currency_pair(currency_pair: str) -> str:

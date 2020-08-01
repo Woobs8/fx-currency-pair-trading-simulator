@@ -2,40 +2,48 @@ import pandas as pd
 from caching import Cache
 from .closing_causes import ClosingCauses
 from .signal_types import SignalTypes
+from .utils import filter_between_years
 from shared import SourceDataColumns as sourcecol, SignalColumns as sigcol, ResolvedSignalColumns as ressigcol
 from datetime import datetime
 import hashlib
+from tqdm import tqdm
+
 
 class SignalResolver:
 
-    def __init__(self, data_series: pd.Series, ignore_reverse: bool = False):
+    def __init__(self, data_series: pd.Series, reverse: bool):
         self.data_series = data_series
-        self.ignore_reverse = ignore_reverse
+        self.reverse = reverse
         self.columns = [ressigcol.OPEN, ressigcol.OPEN_QUOTE, ressigcol.TYPE, ressigcol.STOP_PROFIT, ressigcol.STOP_LOSS, ressigcol.CLOSE, ressigcol.NET_GAIN, ressigcol.CAUSE]
 
 
-    def get_resolve_signals(self, signals: pd.DataFrame) -> pd.DataFrame:
+    def get_resolve_signals(self, signals: pd.DataFrame, start: datetime = None, stop: datetime = None) -> pd.DataFrame:
         signals_hash = hashlib.sha1(pd.util.hash_pandas_object(signals).values).hexdigest()
-        cache_key = 'k{}_{}'.format(signals_hash, self.ignore_reverse)
+        start_ts = int(start.timestamp()) if start is not None else ''
+        stop_ts = int(stop.timestamp()) if stop is not None else ''
+        cache_key = 'k{}_{}_{}_{}'.format(signals_hash, start_ts, stop_ts, 'reverse' if self.reverse else '')
         cache = Cache.get()
         if cache.cache_exists and cache.contains(cache_key):
             print('Loading resolved signals for [{}] from cache.'.format(cache_key))
             resolved_signals = cache.fetch(cache_key)
         else:
-            resolved_signals = self.resolve_signals(signals)
+            resolved_signals = self.resolve_signals(signals, start, stop)
             print('Caching result for [{}].'.format(cache_key))
             cache.put(resolved_signals, cache_key)
         return resolved_signals
 
 
-    def resolve_signals(self, signals: pd.DataFrame) -> pd.DataFrame:
+    def resolve_signals(self, signals: pd.DataFrame, start: datetime = None, stop: datetime = None) -> pd.DataFrame:
+        signals = filter_between_years(signals, start, stop)
+        progress = tqdm(signals.itertuples(), total=signals.shape[0])
+        progress.set_description('Resolving signals')
         resolved_positions = []
-        for i, signal in enumerate(signals.itertuples()):
+        for i, signal in enumerate(progress):
             if i < (signals.shape[0] - 1):
-                if self.ignore_reverse:
-                    next_index = signals.shape[0] - 1
-                else:
+                if self.reverse:
                     next_index = i + 1
+                else:
+                    next_index = signals.shape[0] - 1
             else:
                 break
             signal_reverse_time = signals.iloc[next_index,:].name
@@ -82,7 +90,6 @@ class SignalResolver:
             net_pips_gain = closing_quote - opening_quote
         else:
             net_pips_gain = opening_quote - closing_quote
-
         return pd.Series([opened_at, opening_quote, signal_type, stop_profit, stop_loss, closing_time, net_pips_gain, cause], index=self.columns)
 
 

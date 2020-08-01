@@ -3,6 +3,7 @@ from datetime import datetime
 from .signal_resolver import SignalResolver
 from .closing_causes import ClosingCauses
 from .signal_types import SignalTypes
+from .utils import filter_between_years
 from shared import ResolvedSignalColumns
 
 class SignalAnalyzer:
@@ -20,21 +21,13 @@ class SignalAnalyzer:
 
     def get_buy_stats(self, start: datetime = None, stop: datetime = None) -> dict:
         buy_signals = self.resolved_signals[self.resolved_signals[ResolvedSignalColumns.TYPE] == SignalTypes.BUY]
-        buy_signals = self.filter_between_years(buy_signals, start, stop)
+        buy_signals = filter_between_years(buy_signals, start, stop, ResolvedSignalColumns.OPEN)
         return self.calc_signals_stats(buy_signals)
-
-
-    def filter_between_years(self, signals: pd.DataFrame, start: datetime = None, stop: datetime = None):
-        if start is not None:
-            signals = signals[signals[ResolvedSignalColumns.OPEN] >= start]
-        if stop is not None:
-            signals = signals[signals[ResolvedSignalColumns.OPEN] <= stop]
-        return signals
     
 
     def get_sell_stats(self, start: datetime = None, stop: datetime = None) -> dict:
         sell_signals = self.resolved_signals[self.resolved_signals[ResolvedSignalColumns.TYPE] == SignalTypes.SELL]
-        sell_signals = self.filter_between_years(sell_signals, start, stop)
+        sell_signals = filter_between_years(sell_signals, start, stop, ResolvedSignalColumns.OPEN)
         return self.calc_signals_stats(sell_signals)
 
 
@@ -43,8 +36,9 @@ class SignalAnalyzer:
         net_gain_stats = self.calc_normal_distribution(signals[ResolvedSignalColumns.NET_GAIN])
         duration = signals[ResolvedSignalColumns.CLOSE] - signals[ResolvedSignalColumns.OPEN] 
         duration_stats = self.calc_normal_distribution(duration)
-        closing_cause_count = signals[ResolvedSignalColumns.CAUSE].value_counts()
-        return {'count': count, 'net_gain': net_gain_stats, 'duration': duration_stats, 'closings': closing_cause_count.to_dict()}
+        closing_cause_count = signals[ResolvedSignalColumns.CAUSE].value_counts().to_dict()
+        closing_cause_count = {ClosingCauses(k).name:v for k, v in closing_cause_count.items()}
+        return {'count': count, 'net_gain': net_gain_stats, 'duration': duration_stats, 'closings': closing_cause_count}
 
 
     def calc_normal_distribution(self, data: pd.Series) -> dict:

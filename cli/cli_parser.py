@@ -39,7 +39,7 @@ def add_simulation_arguments(parser):
     parser.add_argument('--quote', type=str, help='the bid quote to use', choices=['open', 'close', 'high', 'low'], required=True)
     parser.add_argument('--delta', type=int, help='magnitude in pips short average must differ from long average to be considred a break', required=True)
     parser.add_argument('--no-cache', '--nc', action='store_true', help='ignore caches and load data from source')
-    parser.add_argument('--ignore_reverse', '--ir', action='store_true', help='do not close positions when a reversed signal is encountered')
+    parser.add_argument('--reverse', '--r', action='store_true', help='close positions when a reversed signal is encountered')
 
     stop_strat_subparsers = parser.add_subparsers(dest='stopping_strat', help='strategy for evaluating stopping criteria',  required=True)
     offset_strat_parser = stop_strat_subparsers.add_parser('offset')

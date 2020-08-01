@@ -25,7 +25,6 @@ def generate_signals_timeseries_plot(data: pd.Series, resolved_signals: pd.DataF
         plot_signals_series(output_fp, year, data[data.index.year == year], resolved_signals[resolved_signals[ResolvedSignalColumns.OPEN].dt.year == year], moving_averages[moving_averages.index.year == year])
 
 
-
 def filter_between_years(df: pd.DataFrame, start: datetime = None, stop: datetime = None, col: str = None) -> pd.DataFrame:    
     if col is not None:
         if start is not None:
@@ -50,9 +49,8 @@ def plot_signals_series(fp: str, title: str, data: pd.DataFrame, resolved_signal
             title="Quote"
         )
     )
-
     fig = go.Figure(layout=layout)
-    add_line(data, fig, 'open bid')
+    add_line(data, fig, 'bid')
     add_line(moving_averages[MovingAverageColumns.SHORT_AVG], fig, 'short')
     add_line(moving_averages[MovingAverageColumns.LONG_AVG], fig, 'long')
     add_signals(resolved_signals, fig)

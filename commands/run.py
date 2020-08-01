@@ -14,11 +14,11 @@ def run(args):
     
 
 def simulate(data: pd.Series, signals: pd.DataFrame, args):
-    resolver = SignalResolver(data[args.quote], args.ignore_reverse)
+    resolver = SignalResolver(data[args.quote], args.reverse)
     if args.no_cache:
-        resolved_signals = resolver.resolve_signals(signals)
+        resolved_signals = resolver.resolve_signals(signals, args.start, args.stop)
     else:
-        resolved_signals = resolver.get_resolve_signals(signals)
+        resolved_signals = resolver.get_resolve_signals(signals, args.start, args.stop)
     analyzer = SignalAnalyzer(resolved_signals)
     stats = analyzer.get_stats(args.start, args.stop)
     return resolved_signals, stats
@@ -32,4 +32,4 @@ def generate_plots(data: pd.Series, signals: pd.DataFrame, resolved_signals: pd.
     generate_signals_distribution_plot('net_gain_distribution', resolved_signals, ResolvedSignalColumns.NET_GAIN, 0.0001, args.start, args.stop, args.id)
     if args.plot_timeseries:
         moving_averages = calc_moving_averages(data[args.quote], args.ma, args.short, args.long)
-        generate_signals_timeseries_plot(data, resolved_signals, moving_averages, args.start, args.stop, args.id)
+        generate_signals_timeseries_plot(data[args.quote], resolved_signals, moving_averages, args.start, args.stop, args.id)
