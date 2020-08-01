@@ -1,6 +1,6 @@
 import argparse
 from .date_validator import valid_date
-from .config_file.parse_general_args import SUPPORTED_CURRENCY_PAIRS
+from .config_file.parse_general_args import SUPPORTED_CURRENCY_PAIRS, SUPPORTED_TICK_RATES
 from .config_file.signal_strat.parse_signal_strat_args import MA_FUNCTIONS
 
 
@@ -31,11 +31,12 @@ def add_simulation_config_argument(parser):
 
 def add_simulation_arguments(parser):
     parser.add_argument('currency_pair', type=str, help='name of FX currency-pair', choices=SUPPORTED_CURRENCY_PAIRS)
+    parser.add_argument('--tick_rate', '--tr', type=str, help='tick rate to use', choices=SUPPORTED_TICK_RATES)
     parser.add_argument('--start', type=valid_date, help='UTC starting date for the simulation (earliest if not specified)')
     parser.add_argument('--stop', type=valid_date, help='UTC stopping date for the simulation (latest if not specified)')
     parser.add_argument('--ma', type=str, help='moving average function', choices=MA_FUNCTIONS, required=True)
-    parser.add_argument('--short', type=int, help='window for short moving average (in minutes)', required=True)
-    parser.add_argument('--long', type=int, help='window for moving long average (in minutes)', required=True)
+    parser.add_argument('--short', type=int, help='window for short moving average (in ticks)', required=True)
+    parser.add_argument('--long', type=int, help='window for moving long average (in ticks)', required=True)
     parser.add_argument('--quote', type=str, help='the bid quote to use', choices=['open', 'close', 'high', 'low'], required=True)
     parser.add_argument('--delta', type=int, help='magnitude in pips short average must differ from long average to be considred a break', required=True)
     parser.add_argument('--no-cache', '--nc', action='store_true', help='ignore caches and load data from source')

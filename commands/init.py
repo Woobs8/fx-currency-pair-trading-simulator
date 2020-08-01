@@ -7,14 +7,14 @@ from analysis import print_data_summary
 
 
 def init(args) -> (pd.DataFrame, pd.DataFrame):
-    initialize_cache(args.currency_pair)
-    data = load_data(args.currency_pair, args.no_cache)
+    initialize_cache(args.currency_pair, args.tick_rate)
+    data = load_data(args.currency_pair, args.tick_rate, args.no_cache)
     signals = preprocess_signals(data, args)
     return data, signals
 
 
-def initialize_cache(currency_pair: str) -> None:
-    Cache.configure(currency_pair)
+def initialize_cache(currency_pair: str, tick_rate: str) -> None:
+    Cache.configure(currency_pair, tick_rate)
     cache = Cache.get()
     source_mod_time = get_latest_source_modification(currency_pair)
     if cache.cache_exists() and cache.get_data_mod_time() < source_mod_time:
@@ -22,9 +22,9 @@ def initialize_cache(currency_pair: str) -> None:
         cache.delete()
 
 
-def load_data(currency_pair: str, no_cache: bool) -> pd.DataFrame:
+def load_data(currency_pair: str, tick_rate: str, no_cache: bool) -> pd.DataFrame:
     source_reader = HistDataReader()
-    loader = DataLoader(source_reader)
+    loader = DataLoader(source_reader, tick_rate)
     if no_cache:
         print('Cache disabled.')
         data = loader.load_from_sources(currency_pair)

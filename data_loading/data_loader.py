@@ -10,8 +10,9 @@ class DataLoader:
     DATA_DIRECTORY = 'data'
     DATA_CACHE_KEY = 'data'
 
-    def __init__(self, source_reader: SourceReader):
+    def __init__(self, source_reader: SourceReader, tick_rate: str):
         self.source_reader = source_reader
+        self.tick_rate = tick_rate
 
 
     def load(self, currency_pair: str) -> pd.DataFrame:
@@ -37,4 +38,4 @@ class DataLoader:
 
 
     def load_data_source(self, fp: str) -> pd.DataFrame:
-        return self.source_reader.load_dataframe(fp)
+        return self.source_reader.load_dataframe(fp, self.tick_rate)
