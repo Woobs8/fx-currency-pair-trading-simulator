@@ -9,9 +9,9 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
     PIPS_SCALING = 1/10000
 
-    def __init__(self, avg_fnc: str, short_window: int, long_window: int, quote: str, delta: int):
-        self.short_avg = MovingAverageFactory.get(avg_fnc, window=short_window)
-        self.long_avg = MovingAverageFactory.get(avg_fnc, window=long_window)
+    def __init__(self, ma_fnc: str, short_window: int, long_window: int, quote: str, delta: int):
+        self.short_avg = MovingAverageFactory.get(ma_fnc, window=short_window)
+        self.long_avg = MovingAverageFactory.get(ma_fnc, window=long_window)
         self.quote = quote
         self.delta = delta
         self.delta_scaled = delta * self.PIPS_SCALING

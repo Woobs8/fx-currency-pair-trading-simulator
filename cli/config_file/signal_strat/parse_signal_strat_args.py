@@ -6,14 +6,14 @@ MA_FUNCTIONS = ['ema', 'sma']
 
 
 def parse_signal_strat_args(config_module) -> SimpleNamespace:
-    ma = parse_arg(config_module.MA_FNC, '--ma', type=valid_ma_fnc, required=True)
-    short_window = parse_arg(config_module.SHORT_WINDOW, '--short', type=int, required=True)
-    long_window = parse_arg(config_module.LONG_WINDOW, '--long', type=int, required=True)
+    ma_fnc = parse_arg(config_module.MA_FNC, '--ma_fnc', type=valid_ma_fnc, required=True)
+    short_window = parse_arg(config_module.SHORT_WINDOW, '--short_window', type=int, required=True)
+    long_window = parse_arg(config_module.LONG_WINDOW, '--long_window', type=int, required=True)
     delta = parse_arg(config_module.DELTA, '--delta', type=int, required=True)
     return SimpleNamespace(
-        ma=ma,
-        short=short_window,
-        long=long_window,
+        ma_fnc=ma_fnc,
+        short_window=short_window,
+        long_window=long_window,
         delta=delta)
 
 

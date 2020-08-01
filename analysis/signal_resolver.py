@@ -40,24 +40,21 @@ class SignalResolver:
         resolved_positions = []
         for i, signal in enumerate(progress):
             if i < (signals.shape[0] - 1):
+                signal_reverse_time = None
                 if self.reverse:
                     next_index = i + 1
-                else:
-                    next_index = signals.shape[0] - 1
-            else:
-                break
-            signal_reverse_time = signals.iloc[next_index,:].name
+                    signal_reverse_time = signals.iloc[next_index,:].name
             resolved_positions.append(self.resolve_position(signal, signal_reverse_time))
         return pd.DataFrame(resolved_positions)
 
     
-    def resolve_position(self, signal: pd.Series, reversed_at: datetime) -> pd.Series:
+    def resolve_position(self, signal: pd.Series, reversed_at: datetime = None) -> pd.Series:
         opened_at = getattr(signal, 'Index').to_pydatetime()
         stop_profit = getattr(signal, sigcol.STOP_PROFIT)
         stop_loss = getattr(signal, sigcol.STOP_LOSS)
         signal_type = SignalTypes.BUY if getattr(signal, sigcol.BUY) else SignalTypes.SELL
         opening_quote = self.data_series.loc[opened_at]
-        position_window = self.get_position_window(opened_at, reversed_at)
+        position_window = self.data_series.loc[opened_at:reversed_at]
 
         if signal_type == SignalTypes.BUY:
             take_profit_at, take_loss_at = self.find_buy_exits(position_window, stop_profit, stop_loss)
@@ -81,20 +78,20 @@ class SignalResolver:
             closing_quote = position_window.loc[take_loss_at]
             closing_time = take_loss_at
             cause = ClosingCauses.STOP_LOSS
-        else:
+        elif reversed_at is not None:
             closing_quote = position_window.iloc[-1]
             closing_time = position_window.index[-1].to_pydatetime()
             cause = ClosingCauses.REVERSE_SIGNAL
+        else:
+            closing_quote = None
+            closing_time = None
+            cause = None
         
         if signal_type == SignalTypes.BUY:
             net_pips_gain = closing_quote - opening_quote
         else:
             net_pips_gain = opening_quote - closing_quote
         return pd.Series([opened_at, opening_quote, signal_type, stop_profit, stop_loss, closing_time, net_pips_gain, cause], index=self.columns)
-
-
-    def get_position_window(self, opened_at: datetime, closed_at: datetime) -> pd.DataFrame:
-        return self.data_series.loc[opened_at:closed_at]
 
 
     def find_buy_exits(self, window: pd.Series, stop_profit: float, stop_loss: float) -> (int, int):

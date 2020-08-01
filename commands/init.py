@@ -4,6 +4,7 @@ from utils.fileutils import get_latest_source_modification
 from data_loading import DataLoader, HistDataReader
 from preprocessing import SignalStrategyFactory, StoppingStrategyFactory, Preprocessor
 from analysis import print_data_summary
+from argparse import Namespace
 
 
 def init(args) -> (pd.DataFrame, pd.DataFrame):
@@ -38,11 +39,28 @@ def load_data(currency_pair: str, tick_rate: str, no_cache: bool) -> pd.DataFram
         raise RuntimeError('Unable to load data')
     
 
-def preprocess_signals(data: pd.DataFrame, args) -> pd.DataFrame:
-    signal_strategy = SignalStrategyFactory.get('ma', avg_fnc=args.ma, short_window=args.short, long_window=args.long, quote=args.quote, delta=args.delta)
-    stop_strategy = StoppingStrategyFactory.get(args.stopping_strat, stop_profit=args.profit, stop_loss=args.loss, quote=args.quote)
+def preprocess_signals(data: pd.DataFrame, args: Namespace) -> pd.DataFrame:
+    signal_strategy = SignalStrategyFactory.get('ma', **signal_strat_argument_parser(args))
+    stopping_strat_argument_parser(args)
+    stop_strategy = StoppingStrategyFactory.get(args.stopping_strat, **stopping_strat_argument_parser(args))
     preprocessor = Preprocessor(signal_strategy, stop_strategy)
     if args.no_cache:
         return preprocessor.find_signals(data)
     else:
         return preprocessor.get_signals(data)
+
+
+def signal_strat_argument_parser(args: Namespace) -> dict:
+    arguments = {}
+    for k, v in args.__dict__.items():
+        if k in ['ma_fnc', 'short_window', 'long_window', 'quote', 'delta'] and v is not None:
+            arguments[k] = v
+    return arguments
+
+
+def stopping_strat_argument_parser(args: Namespace) -> dict:
+    arguments = {}
+    for k, v in args.__dict__.items():
+        if k in ['stop_profit', 'stop_loss', 'quote', 'retracement'] and v is not None:
+            arguments[k] = v
+    return arguments
