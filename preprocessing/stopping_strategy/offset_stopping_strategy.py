@@ -5,7 +5,7 @@ import pandas as pd
 
 class OffsetStoppingStrategy(StoppingStrategy):
 
-    PIPS_SCALING = 1/10000
+    PIPS_SCALING = 1/100000
 
     def __init__(self, stop_profit: int, stop_loss: int, quote: str):
         self.stop_profit = stop_profit

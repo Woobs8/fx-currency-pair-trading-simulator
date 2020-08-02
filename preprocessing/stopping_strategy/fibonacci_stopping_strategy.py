@@ -7,7 +7,7 @@ import numpy as np
 
 class FibonacciStoppingStrategy(StoppingStrategy):
 
-    PIPS_SCALING = 1/10000
+    PIPS_SCALING = 1/100000
 
     def __init__(self, retracement: float, stop_loss: int, quote: str):
         self.retracement = retracement

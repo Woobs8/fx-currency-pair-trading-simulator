@@ -7,7 +7,7 @@ import numpy as np
 
 class MovingAverageSignalStrategy(SignalStrategy):
 
-    PIPS_SCALING = 1/10000
+    PIPS_SCALING = 1/100000
 
     def __init__(self, ma_fnc: str, short_window: int, long_window: int, quote: str, delta: int, confidence_window: int):
         self.short_avg = MovingAverageFactory.get(ma_fnc, window=short_window)
