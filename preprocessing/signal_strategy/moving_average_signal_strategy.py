@@ -9,12 +9,13 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
     PIPS_SCALING = 1/10000
 
-    def __init__(self, ma_fnc: str, short_window: int, long_window: int, quote: str, delta: int):
+    def __init__(self, ma_fnc: str, short_window: int, long_window: int, quote: str, delta: int, confidence_window: int):
         self.short_avg = MovingAverageFactory.get(ma_fnc, window=short_window)
         self.long_avg = MovingAverageFactory.get(ma_fnc, window=long_window)
         self.quote = quote
         self.delta = delta
         self.delta_scaled = delta * self.PIPS_SCALING
+        self.confidence_window = confidence_window
 
 
     def find_signals(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -27,7 +28,7 @@ class MovingAverageSignalStrategy(SignalStrategy):
         buy_signals = self.find_buy_signals(moving_averages, level_changes)
         sell_signals = self.find_sell_signals(moving_averages, level_changes)
         signals = pd.merge(buy_signals, sell_signals, left_index=True, right_index=True, how='outer').fillna(False)
-        return signals
+        return self.verify_confidence_window(signals, moving_averages)
 
 
     def get_moving_averages(self, data: pd.DataFrame, quote: str) -> pd.DataFrame:
@@ -60,9 +61,24 @@ class MovingAverageSignalStrategy(SignalStrategy):
         return sell_signals[SignalColumns.SELL]
 
 
+    def verify_confidence_window(self, signals: pd.DataFrame, moving_averages: pd.DataFrame):
+        ma_diff = (moving_averages[MovingAverageColumns.LONG_AVG] - moving_averages[MovingAverageColumns.SHORT_AVG]).abs()
+        idcs = []
+        for idx in signals.index:
+            idx_in_ma_diff = ma_diff.index.get_loc(idx)
+            if idx_in_ma_diff <= ma_diff.shape[0] - self.confidence_window:
+                idcs += range(idx_in_ma_diff, idx_in_ma_diff + self.confidence_window)        
+        condition_satisfied = ma_diff[idcs].groupby(np.arange(len(ma_diff[idcs])) // self.confidence_window).apply(self.all_elements_ge_delta)
+        return signals.loc[condition_satisfied.values]
+
+
+    def all_elements_ge_delta(self, series: pd.Series) -> bool:
+        return (series > self.delta_scaled).all()
+    
+
     def __repr__(self):
-        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta)
+        return "ma_{}_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)
 
 
     def __str__(self):
-        return "ma_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta)
+        return "ma_{}_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)

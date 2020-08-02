@@ -53,7 +53,7 @@ def preprocess_signals(data: pd.DataFrame, args: Namespace) -> pd.DataFrame:
 def signal_strat_argument_parser(args: Namespace) -> dict:
     arguments = {}
     for k, v in args.__dict__.items():
-        if k in ['ma_fnc', 'short_window', 'long_window', 'quote', 'delta'] and v is not None:
+        if k in ['ma_fnc', 'short_window', 'long_window', 'quote', 'delta', 'confidence_window'] and v is not None:
             arguments[k] = v
     return arguments
 

@@ -10,11 +10,13 @@ def parse_signal_strat_args(config_module) -> SimpleNamespace:
     short_window = parse_arg(config_module.SHORT_WINDOW, '--short_window', type=int, required=True)
     long_window = parse_arg(config_module.LONG_WINDOW, '--long_window', type=int, required=True)
     delta = parse_arg(config_module.DELTA, '--delta', type=int, required=True)
+    confidence_window = parse_arg(config_module.CONFIDENCE_WINDOW, '--confidence_window', type=int, required=True)
     return SimpleNamespace(
         ma_fnc=ma_fnc,
         short_window=short_window,
         long_window=long_window,
-        delta=delta)
+        delta=delta,
+        confidence_window=confidence_window)
 
 
 def valid_ma_fnc(ma_fnc: str) -> str:

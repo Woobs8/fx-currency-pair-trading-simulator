@@ -39,6 +39,7 @@ def add_simulation_arguments(parser):
     parser.add_argument('--long_window', '--long', type=int, help='window for moving long average (in ticks)', required=True)
     parser.add_argument('--quote', type=str, help='the bid quote to use', choices=['open', 'close', 'high', 'low'], required=True)
     parser.add_argument('--delta', type=int, help='magnitude in pips short average must differ from long average to be considred a break', required=True)
+    parser.add_argument('--confidence_window', '--cw', type=int, help='duration (in ticks) that a signal must be persisted before it is considered valid', required=True)
     parser.add_argument('--no-cache', '--nc', action='store_true', help='ignore caches and load data from source')
     parser.add_argument('--reverse', '--r', action='store_true', help='close positions when a reversed signal is encountered')
 
