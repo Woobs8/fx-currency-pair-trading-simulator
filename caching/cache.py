@@ -11,26 +11,40 @@ class Cache:
     LATEST_MOD_COL = 'latest_mod'
 
     currency_pair = None
+    group = None
     instance = None
 
     @classmethod
-    def configure(cls, currency_pair: str, group: str) -> None:
+    def configure(cls, currency_pair: str, group: str = None):
         cls.currency_pair = currency_pair
         cls.group = group
+        cls.instance = Cache(cls.currency_pair, cls.group)
+        return cls.instance
     
 
     @classmethod
     def get(cls):
         if cls.currency_pair is None:
             raise RuntimeError('Cache not configured with currency_pair')
-        if cls.group is None:
-                raise RuntimeError('Cache not configured with group')
+
         if cls.instance is None:
             cls.instance = Cache(cls.currency_pair, cls.group)
         return cls.instance
 
 
-    def __init__(self, currency_pair: str, group: str):
+    @classmethod
+    def __enter__(cls):
+        return cls
+
+
+    @classmethod
+    def __exit__(cls, typ, value, tb):
+        cls.currency_pair = None
+        cls.group = None
+        cls.instance = None
+
+
+    def __init__(self, currency_pair: str, group: str = None):
         self.currency_pair = currency_pair
         self.group = group
         self.cache_path = self.get_abs_cache_path(currency_pair)
@@ -45,7 +59,7 @@ class Cache:
 
 
     def cache_exists(self) -> bool:
-        return path.exists(self.cache_path) and self.storage.contains(self.cache_path, self.META_KEY, self.group)
+        return path.exists(self.cache_path)
         
     
     def put(self, df: pd.DataFrame, key: str) -> None:
@@ -65,8 +79,14 @@ class Cache:
     def contains(self, key: str) -> bool:
         return self.storage.contains(self.cache_path, key, group=self.group)
 
+
+    def clear_all_keys(self):
+        if not self.cache_exists():
+            raise FileNotFoundError('No cache found for [{}, ticks={}]'.format(self.currency_pair, self.group))
+        self.storage.clear(self.cache_path)
+
     
-    def delete(self):
+    def clear(self):
         if not self.cache_exists():
             raise FileNotFoundError('No cache found for [{}, ticks={}]'.format(self.currency_pair, self.group))
         return self.storage.delete(self.cache_path, self.group)
@@ -80,3 +100,4 @@ class Cache:
     def get_data_mod_time(self) -> datetime:
         mod_time_df = self.fetch(self.META_KEY)
         return pd.to_datetime(mod_time_df[self.LATEST_MOD_COL].dt.to_pydatetime())
+

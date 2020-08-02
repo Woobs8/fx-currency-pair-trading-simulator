@@ -1,6 +1,5 @@
 import pandas as pd
 from .source_reader import SourceReader
-from ..utils import resample_source
 from ..csv_reader import CsvReader
 from shared import SourceDataColumns
 from zipfile import ZipFile
@@ -10,8 +9,9 @@ from time import timezone
 
 class HistDataReader(SourceReader):
 
+    TICK_RATE = 'min'
+
     def __init__(self):
-        self.tick_rate = 'min'            
         self.sep = ';'
         self.header = None
         self.columns = [0, 1, 2, 3, 4]
@@ -26,18 +26,13 @@ class HistDataReader(SourceReader):
         self.csv_reader = CsvReader(self.sep, self.columns, self.column_names, self.header, self.time_column, self.data_tz, self.local_tz)
 
 
-    def load_dataframe(self, fp: str, tick_rate: str = None) -> pd.DataFrame:
+    def load_dataframe(self, fp: str) -> pd.DataFrame:
         if fp.endswith('.zip'):
-            df = self.load_zipped_csv(fp)
+            return self.load_zipped_csv(fp)
         elif fp.endswith('.csv'):
-            df = self.csv_reader.load(fp)
+            return self.csv_reader.load(fp)
         else:
-            raise ValueError('Invalid file type {}. Only .csv and .zip supported'.format(fp))
-        
-        if tick_rate != self.tick_rate:
-            df = resample_source(df, tick_rate)
-        return df
-            
+            raise ValueError('Invalid file type {}. Only .csv and .zip supported'.format(fp))  
 
 
     def load_zipped_csv(self, fp: str) -> pd.DataFrame:

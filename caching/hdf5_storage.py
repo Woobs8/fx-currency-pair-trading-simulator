@@ -15,10 +15,16 @@ class HDF5Storage:
     
     def contains(self, fp: str, name: str, group: str = None) -> bool:
         with pd.HDFStore(fp) as hdf:
-            key = '/{}/{}'.format(group if group is not None else '', name)
+            key = '{}/{}'.format(('/' + group) if group is not None else '', name)
             return key in hdf.keys()
 
 
-    def delete(self, fp: str, group: str) -> None:
+    def delete_group(self, fp: str, group: str) -> None:
         with pd.HDFStore(fp) as hdf:
             hdf.remove(group)
+
+
+    def clear(self, fp: str):
+        with pd.HDFStore(fp) as hdf:
+            for key in hdf.keys():
+                hdf.remove(key)
