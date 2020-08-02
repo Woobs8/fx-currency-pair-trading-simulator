@@ -18,7 +18,7 @@ class SignalResolver:
 
 
     def get_resolve_signals(self, signals: pd.DataFrame, start: datetime = None, stop: datetime = None) -> pd.DataFrame:
-        signals_hash = hashlib.sha1(pd.util.hash_pandas_object(signals).values).hexdigest()
+        signals_hash = hashlib.md5(pd.util.hash_pandas_object(signals).values).hexdigest()
         start_ts = int(start.timestamp()) if start is not None else ''
         stop_ts = int(stop.timestamp()) if stop is not None else ''
         cache_key = 'k{}_{}_{}_{}'.format(signals_hash, start_ts, stop_ts, 'reverse' if self.reverse else '')

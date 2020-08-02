@@ -7,22 +7,19 @@ import numpy as np
 
 class MovingAverageSignalStrategy(SignalStrategy):
 
-    PIPS_SCALING = 1/100000
-
     def __init__(self, ma_fnc: str, short_window: int, long_window: int, quote: str, delta: int, confidence_window: int):
         self.short_avg = MovingAverageFactory.get(ma_fnc, window=short_window)
         self.long_avg = MovingAverageFactory.get(ma_fnc, window=long_window)
         self.quote = quote
         self.delta = delta
-        self.delta_scaled = delta * self.PIPS_SCALING
         self.confidence_window = confidence_window
 
 
     def find_signals(self, data: pd.DataFrame) -> pd.DataFrame:
         moving_averages = self.get_moving_averages(data, self.quote)
         short_avg = moving_averages[MovingAverageColumns.SHORT_AVG]
-        buy_threshold = moving_averages[MovingAverageColumns.LONG_AVG] + self.delta_scaled
-        sell_threshold = moving_averages[MovingAverageColumns.LONG_AVG] - self.delta_scaled
+        buy_threshold = moving_averages[MovingAverageColumns.LONG_AVG] + self.delta
+        sell_threshold = moving_averages[MovingAverageColumns.LONG_AVG] - self.delta
         levels = self.hysteresis_levels(short_avg.to_numpy(), sell_threshold.to_numpy(), buy_threshold.to_numpy())
         level_changes = levels.astype(int).diff()
         buy_signals = self.find_buy_signals(moving_averages, level_changes)
@@ -73,12 +70,11 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
 
     def all_elements_ge_delta(self, series: pd.Series) -> bool:
-        return (series > self.delta_scaled).all()
-    
+        return (series > self.delta).all()
+
 
     def __repr__(self):
-        return "ma_{}_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)
-
+        return "(short_avg:{}, long_avg:{}, quote:{}, delta:{:.6f}, confidence_window:{})".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)
 
     def __str__(self):
-        return "ma_{}_{}_{}_{}_{}".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)
+        return "MovingAverageSignalStrategy(short_avg={}, long_avg={}, quote={}, delta={:.6f}, confidence_window={})".format(self.short_avg, self.long_avg, self.quote, self.delta, self.confidence_window)

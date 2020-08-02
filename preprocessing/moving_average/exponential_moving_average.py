@@ -9,8 +9,8 @@ class ExponentialMovingAverage(MovingAverageFunction):
 
 
     def __repr__(self):
-        return "ema{}".format(self.window)
+        return "(window:{})".format(self.window)
 
 
     def __str__(self):
-        return "ema{}".format(self.window)
+        return "ExponentialMovingAverage(window={})".format(self.window)

@@ -8,8 +8,8 @@ class SimpleMovingAverage(MovingAverageFunction):
 
 
     def __repr__(self):
-        return "sma{}".format(self.window)
+        return "(window:{})".format(self.window)
 
 
     def __str__(self):
-        return "sma{}".format(self.window)
+        return "SimpleMovingAverage(window={})".format(self.window)

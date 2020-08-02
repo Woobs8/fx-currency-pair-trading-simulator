@@ -24,12 +24,12 @@ def valid_stopping_strat(stop_strat: str) -> str:
 
 
 def parse_offset_stop_strat_args(config_module) -> SimpleNamespace:
-    stop_profit = parse_arg(config_module.STOP_PROFIT, '--stop_profit', type=int, required=True)
-    stop_loss = parse_arg(config_module.STOP_LOSS, '--stop_loss', type=int, required=True)
+    stop_profit = parse_arg(config_module.STOP_PROFIT, '--stop_profit', type=float, required=True)
+    stop_loss = parse_arg(config_module.STOP_LOSS, '--stop_loss', type=float, required=True)
     return SimpleNamespace(stop_profit=stop_profit, stop_loss=stop_loss)
 
 
 def parse_fibonacci_stop_strat_args(config_module) -> int:
     retracement = parse_arg(config_module.RETRACEMENT, '--retracement', type=float, required=True)
-    stop_loss = parse_arg(config_module.STOP_LOSS, '--stop_loss', type=int, required=True)
+    stop_loss = parse_arg(config_module.STOP_LOSS, '--stop_loss', type=float, required=True)
     return SimpleNamespace(retracement=retracement, stop_loss=stop_loss)

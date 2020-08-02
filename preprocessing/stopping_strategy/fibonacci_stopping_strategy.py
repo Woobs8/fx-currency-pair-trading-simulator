@@ -7,12 +7,9 @@ import numpy as np
 
 class FibonacciStoppingStrategy(StoppingStrategy):
 
-    PIPS_SCALING = 1/100000
-
     def __init__(self, retracement: float, stop_loss: int, quote: str):
         self.retracement = retracement
         self.stop_loss = stop_loss
-        self.stop_loss_detlta_pips = self.stop_loss * self.PIPS_SCALING
         self.quote = quote
         super().__init__()
 
@@ -21,7 +18,7 @@ class FibonacciStoppingStrategy(StoppingStrategy):
         quotes = pd.merge(data, signals, left_index=True, right_index=True)
         buy_indices = (quotes[SignalColumns.BUY] == True).values
         sell_indices = (quotes[SignalColumns.SELL] == True).values
-        stop_loss_criteria = self.calc_stop_loss(quotes[self.quote], buy_indices, sell_indices, self.stop_loss_detlta_pips)
+        stop_loss_criteria = self.calc_stop_loss(quotes[self.quote], buy_indices, sell_indices, self.stop_loss)
         stop_profit_criteria = self.calc_stop_profit(quotes, data)
         stopping_criteria = pd.merge(stop_profit_criteria, stop_loss_criteria, left_index=True, right_index=True)
         return stopping_criteria
@@ -53,8 +50,8 @@ class FibonacciStoppingStrategy(StoppingStrategy):
 
 
     def __repr__(self):
-        return "fibonacci_{}_{}_{}".format(round(self.retracement*100), self.stop_loss, self.quote)
+        return "(retracement:{:.2f}, stop_loss:{:.6f}, quote:{})".format(self.retracement, self.stop_loss, self.quote)
 
 
     def __str__(self):
-        return "fibonacci_{}_{}_{}".format(round(self.retracement*100), self.stop_loss, self.quote)
+        return "FibonacciStoppingStrategy(retracement={:.2f}, stop_loss={:.6f}, quote={})".format(self.retracement, self.stop_loss, self.quote)

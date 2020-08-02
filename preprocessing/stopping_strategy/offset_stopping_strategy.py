@@ -5,13 +5,9 @@ import pandas as pd
 
 class OffsetStoppingStrategy(StoppingStrategy):
 
-    PIPS_SCALING = 1/100000
-
     def __init__(self, stop_profit: int, stop_loss: int, quote: str):
         self.stop_profit = stop_profit
-        self.stop_profit_delta_pips = self.stop_profit * self.PIPS_SCALING
         self.stop_loss = stop_loss
-        self.stop_loss_detlta_pips = self.stop_loss * self.PIPS_SCALING
         self.quote = quote
         super().__init__()
 
@@ -20,8 +16,8 @@ class OffsetStoppingStrategy(StoppingStrategy):
         quotes = pd.merge(data, signals, left_index=True, right_index=True)
         buy_indices = (quotes[SignalColumns.BUY] == True).values
         sell_indices = (quotes[SignalColumns.SELL] == True).values
-        stop_profit_criteria = self.calc_stop_profit(quotes[self.quote], buy_indices, sell_indices, self.stop_profit_delta_pips)
-        stop_loss_criteria = self.calc_stop_loss(quotes[self.quote], buy_indices, sell_indices, self.stop_loss_detlta_pips)
+        stop_profit_criteria = self.calc_stop_profit(quotes[self.quote], buy_indices, sell_indices, self.stop_profit)
+        stop_loss_criteria = self.calc_stop_loss(quotes[self.quote], buy_indices, sell_indices, self.stop_loss)
         stopping_criteria = pd.merge(stop_profit_criteria, stop_loss_criteria, left_index=True, right_index=True)
         return stopping_criteria
     
@@ -37,8 +33,7 @@ class OffsetStoppingStrategy(StoppingStrategy):
 
 
     def __repr__(self):
-        return "offset_{}_{}_{}".format(self.stop_profit, self.stop_loss, self.quote)
-
+        return "(stop_profit:{:.6f}, stop_loss:{:.6f}, quote:{})".format(self.stop_profit, self.stop_loss, self.quote)
 
     def __str__(self):
-        return "offset_{}_{}_{}".format(self.stop_profit, self.stop_loss, self.quote)
+        return "OffsetStoppingStrategy(stop_profit={:.6f}, stop_loss={:.6f}, quote={})".format(self.stop_profit, self.stop_loss, self.quote)
