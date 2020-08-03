@@ -32,4 +32,5 @@ def parse_offset_stop_strat_args(config_module) -> SimpleNamespace:
 def parse_fibonacci_stop_strat_args(config_module) -> int:
     retracement = parse_arg(config_module.RETRACEMENT, '--retracement', type=float, required=True)
     stop_loss = parse_arg(config_module.STOP_LOSS, '--stop_loss', type=float, required=True)
-    return SimpleNamespace(retracement=retracement, stop_loss=stop_loss)
+    margin = parse_arg(config_module.MARGIN, '--margin', type=float, required=True)
+    return SimpleNamespace(retracement=retracement, stop_loss=stop_loss, margin=margin)

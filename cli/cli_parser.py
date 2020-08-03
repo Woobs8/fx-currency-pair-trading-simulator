@@ -49,4 +49,5 @@ def add_simulation_arguments(parser):
     offset_strat_parser.add_argument('--stop_loss', '--loss', type=float, help='delta for setting stop loss', required=True)
     fib_strat_parser = stop_strat_subparsers.add_parser('fib')
     fib_strat_parser.add_argument('--retracement', '--rt', type=float, help='factor to multiply high-low diff by (supports two decimal places of precision)', required=True)
+    fib_strat_parser.add_argument('--margin', type=float, help='minimum gain margin on retracement', required=True)
     fib_strat_parser.add_argument('--stop_loss', '--loss', type=float, help='delta for setting stop loss', required=True)

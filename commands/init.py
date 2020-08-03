@@ -65,6 +65,6 @@ def signal_strat_argument_parser(args: Namespace) -> dict:
 def stopping_strat_argument_parser(args: Namespace) -> dict:
     arguments = {}
     for k, v in args.__dict__.items():
-        if k in ['stop_profit', 'stop_loss', 'quote', 'retracement'] and v is not None:
+        if k in ['stop_profit', 'stop_loss', 'quote', 'retracement', 'margin'] and v is not None:
             arguments[k] = v
     return arguments
