@@ -54,6 +54,7 @@ def plot_signals_series(fp: str, title: str, data: pd.DataFrame, resolved_signal
     add_line(moving_averages[MovingAverageColumns.SHORT_AVG], fig, 'short')
     add_line(moving_averages[MovingAverageColumns.LONG_AVG], fig, 'long')
     add_signals(resolved_signals, fig)
+    fig.update_layout(hovermode='x unified')
     fig.write_html(fp)
 
 
