@@ -3,9 +3,9 @@ from caching import Cache
 from .closing_causes import ClosingCauses
 from .signal_types import SignalTypes
 from .utils import filter_between_years
+from utils import hash_objects
 from shared import SourceDataColumns as sourcecol, SignalColumns as sigcol, ResolvedSignalColumns as ressigcol
 from datetime import datetime
-import hashlib
 from tqdm import tqdm
 
 
@@ -18,17 +18,14 @@ class SignalResolver:
 
 
     def get_resolve_signals(self, signals: pd.DataFrame, start: datetime = None, stop: datetime = None) -> pd.DataFrame:
-        signals_hash = hashlib.md5(pd.util.hash_pandas_object(signals).values).hexdigest()
-        start_ts = int(start.timestamp()) if start is not None else ''
-        stop_ts = int(stop.timestamp()) if stop is not None else ''
-        cache_key = 'k{}_{}_{}_{}'.format(signals_hash, start_ts, stop_ts, 'reverse' if self.reverse else '')
+        cache_key = 'k' + hash_objects([signals, start, stop, self.reverse])
         cache = Cache.get()
         if cache.cache_exists and cache.contains(cache_key):
-            print('Loading resolved signals for [{}] from cache.'.format(cache_key))
+            print('Loading resolved signals for configuration [start={}, stop={}, reverse={}] using key [{}] from cache.'.format(start, stop, self.reverse, cache_key))
             resolved_signals = cache.fetch(cache_key)
         else:
             resolved_signals = self.resolve_signals(signals, start, stop)
-            print('Caching result for [{}].'.format(cache_key))
+            print('Caching result for configuration [start={}, stop={}, reverse={}] using key [{}].'.format(start, stop, self.reverse, cache_key))
             cache.put(resolved_signals, cache_key)
         return resolved_signals
 
