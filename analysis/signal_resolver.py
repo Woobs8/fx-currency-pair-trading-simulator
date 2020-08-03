@@ -24,7 +24,7 @@ class SignalResolver:
             print('Loading resolved signals for configuration [start={}, stop={}, reverse={}] using key [{}] from cache.'.format(start, stop, self.reverse, cache_key))
             resolved_signals = cache.fetch(cache_key)
         else:
-            resolved_signals = self.resolve_signals(signals, start, stop)
+            resolved_signals = self.resolve_signals(signals, start, stop).dropna()
             print('Caching result for configuration [start={}, stop={}, reverse={}] using key [{}].'.format(start, stop, self.reverse, cache_key))
             cache.put(resolved_signals, cache_key)
         return resolved_signals
@@ -52,12 +52,11 @@ class SignalResolver:
         signal_type = SignalTypes.BUY if getattr(signal, sigcol.BUY) else SignalTypes.SELL
         opening_quote = self.data_series.loc[opened_at]
         position_window = self.data_series.loc[opened_at:reversed_at]
-
         if signal_type == SignalTypes.BUY:
             take_profit_at, take_loss_at = self.find_buy_exits(position_window, stop_profit, stop_loss)
         else:
-            take_profit_at, take_loss_at = self.find_sell_exits(position_window, stop_profit, stop_loss) 
-
+            take_profit_at, take_loss_at = self.find_sell_exits(position_window, stop_profit, stop_loss)
+            
         if take_profit_at is not None and take_loss_at is not None:
             if take_profit_at <= take_loss_at:
                 closing_quote = position_window.loc[take_profit_at]
@@ -84,10 +83,13 @@ class SignalResolver:
             closing_time = None
             cause = None
         
-        if signal_type == SignalTypes.BUY:
-            net_pips_gain = closing_quote - opening_quote
+        if closing_quote is not None:
+            if signal_type == SignalTypes.BUY:
+                net_pips_gain = closing_quote - opening_quote
+            else:
+                net_pips_gain = opening_quote - closing_quote
         else:
-            net_pips_gain = opening_quote - closing_quote
+            net_pips_gain = None
         return pd.Series([opened_at, opening_quote, signal_type, stop_profit, stop_loss, closing_time, net_pips_gain, cause], index=self.columns)
 
 

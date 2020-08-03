@@ -59,18 +59,31 @@ class MovingAverageSignalStrategy(SignalStrategy):
 
 
     def verify_confidence_window(self, signals: pd.DataFrame, moving_averages: pd.DataFrame):
-        ma_diff = (moving_averages[MovingAverageColumns.LONG_AVG] - moving_averages[MovingAverageColumns.SHORT_AVG]).abs()
+        ma_diff = (moving_averages[MovingAverageColumns.LONG_AVG] - moving_averages[MovingAverageColumns.SHORT_AVG])
         idcs = []
         for idx in signals.index:
             idx_in_ma_diff = ma_diff.index.get_loc(idx)
-            if idx_in_ma_diff <= ma_diff.shape[0] - self.confidence_window:
-                idcs += range(idx_in_ma_diff, idx_in_ma_diff + self.confidence_window)        
-        condition_satisfied = ma_diff[idcs].groupby(np.arange(len(ma_diff[idcs])) // self.confidence_window).apply(self.all_elements_ge_delta)
+            if idx_in_ma_diff <= (ma_diff.shape[0] - self.confidence_window):
+                idcs += range(idx_in_ma_diff, idx_in_ma_diff + self.confidence_window)
+        condition_satisfied = ma_diff[idcs].groupby(np.arange(len(ma_diff[idcs])) // self.confidence_window).apply(self.maintains_status)
+        padding = pd.Series([False] * (signals.shape[0] - condition_satisfied.shape[0]))
+        condition_satisfied = condition_satisfied.append(padding)
         return signals.loc[condition_satisfied.values]
 
 
-    def all_elements_ge_delta(self, series: pd.Series) -> bool:
-        return (series > self.delta).all()
+    def maintains_status(self, ma_diff: pd.Series) -> bool:
+        if ma_diff.iloc[0] > 0:
+            return self.in_buy(ma_diff)
+        else:
+            return self.in_sell(ma_diff)
+
+
+    def in_buy(self, ma_diff: pd.Series) -> bool:
+        return (ma_diff > self.delta).all()
+
+
+    def in_sell(self, ma_diff: pd.Series) -> bool:
+        return (ma_diff < -self.delta).all()
 
 
     def __repr__(self):

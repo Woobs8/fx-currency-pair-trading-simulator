@@ -21,7 +21,7 @@ def summarize_data(data: pd.DataFrame) -> (int, int, datetime, datetime):
     
 
 def calc_tick_rate(data: pd.DataFrame) -> int:
-    delta = data.index.to_series().diff().astype('timedelta64[m]').mean()
+    delta = data.iloc[:2,:].index.to_series().diff().astype('timedelta64[m]').mean()
     return floor(delta)
 
 
